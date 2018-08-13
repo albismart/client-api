@@ -1,8 +1,5 @@
 <?php
 
-$currentPath = realpath(dirname(__FILE__));
-include_once $currentPath . "/init.php";
-
 /* Time after time checkcing the api version for automatic updates */
 if( config('api.autoUpdates')==true ) {
 	$opts = array('http' => array( "method" => "GET", "header" => array("User-Agent: PHP")));

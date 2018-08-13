@@ -9,4 +9,5 @@
 */
 
 $currentPath = realpath(dirname(__FILE__));
+require_once $currentPath . "/../bootstrap.php";
 require_once $currentPath . "/update.php";
