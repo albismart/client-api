@@ -11,14 +11,14 @@ In order to get the API running and ready, setup a linux distro with the below s
 ```
 1. PHP 5.4> running server with 
 2. PHP Extensions: json, snmp, mysql, mysql-pdo
-3. MySQL if you are planing to use (freeradius)[https://freeradius.org/]
+3. MySQL if you are planing to use <a href="https://freeradius.org/">freeradius</a>
 4. DHCP server in case you have one you can install our API inside that actual running server.
-5. (OMAPI)[https://en.wikipedia.org/wiki/OMAPI] and OMSHELL in order to manage the DHCP Hosts on the fly.
+5. [`OMAPI`](https://en.wikipedia.org/wiki/OMAPI) and OMSHELL in order to manage the DHCP Hosts on the fly.
 ```
 
 ### Installing
 
-You may download our api from (project page)[albismart.com] or get the zip from github.
+You may download our api from [project page](albismart.com) or get the zip from github.
 
 After doing get the files inside your `/var/www/html/` dir or your public apache/nginx based on your server configuration.
 
