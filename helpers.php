@@ -55,3 +55,12 @@ function config($index = null) {
 
 	return $configArrayWalker;
 }
+
+function apiLatestVersionObject($index = null) {
+	$opts = array('http' => array( "method" => "GET", "header" => array("User-Agent: PHP")));
+	$context = stream_context_create($opts);
+	$releaseUrl = (config("api.releaseUrl")) ? config("api.releaseUrl") : 'https://api.github.com/repos/albismart/client-api/releases/latest';
+	$latestVersionObject = file_get_contents($releaseUrl, false, $context);
+	$latestVersionObject = json_decode($latestVersionObject);
+	return ($index) && isset($latestVersionObject->{$index}) ? $latestVersionObject->{$index} : $latestVersionObject;
+}
