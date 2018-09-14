@@ -36,7 +36,7 @@ function config($index = null, $default = null) {
 	if($index) {
 		if(is_string($index)) {
 			$indexes = strpos($index, '.') !== false ? explode('.', $index) : 
-					   (strpos($index, '/') !==false ? explode('/', $index) : null);
+					   strpos($index, '/') !== false ? explode('/', $index) : null;
 			if($indexes) {
 				$index = $indexes;
 			} else {
@@ -100,6 +100,37 @@ function snmp_path($path = null) {
 function views_path($path = null) {
 	$views_path = base_path('/views');
 	return ($path) ? $views_path . $path : $views_path;
+}
+
+function configFileContent($post) {
+	$autoUpdates = (isset($post['autoUpdates'])) ? 'true' : 'false' ;
+	$indexPage = (isset($post['indexPage'])) ? 'true' : 'false' ;
+	return '<?php
+
+return [
+	"api" => array(
+		"key" => "'.$post['apikey'].'",
+		"version" => "'.$post['version'].'",
+		"autoUpdates" => '.$autoUpdates.',
+		"indexPage" => '.$indexPage.',
+		"releaseUrl" => "https://api.github.com/repos/albismart/client-api/releases/latest"
+	),
+	"database" => array(
+		"host" => "'.$post['dbhost'].'",
+		"port" => "'.$post['dbport'].'",
+		"name" => "'.$post['dbname'].'",
+		"username" => "'.$post['dbusername'].'",
+		"password" => "'.$post['dbpassword'].'"
+	),
+	"snmp" => array(
+		"community" => "'.$post['community'].'",
+		"wcommunity" => "'.$post['wcommunity'].'",
+		"timeout" => "'.$post['timeout'].'",
+		"retries" => "'.$post['retries'].'"
+	)
+];
+
+?>';
 }
 
 ?>
