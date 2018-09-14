@@ -1,3 +1,4 @@
+<?php if(!function_exists('base_path')) { die("Unauthorized!"); } ?>
 <div class="column col-6">
 	<div class="card">
 		<div class="card-body">
