@@ -11,7 +11,7 @@
 		<h3> Warning: this is a public page! </h3>
 	</header>
 	<?php
-		if(!isset($_GET['ip'])) {
+		if(!isset($_GET['hostname'])) {
 			include_once views_path("/tabs/index/search.php");
 		} else {
 			include_once views_path("/tabs/index/cmts-insight.php");

@@ -2,8 +2,9 @@
 
 Class SNMP_Driver {
 	protected $vendor, $hostname, $community, $writeCommunity, $timeout, $retries, $mibs;
-	public function __construct($hostname) {
+	public function __construct($hostname, $vendor) {
 		$this->hostname = $hostname;
+		$this->vendor = $vendor;
 		$this->community = config("snmp.community");
 		$this->writeCommunity = config("write.community") ? config("write.community") : $this->community;
 		$this->timeout = config("snmp.timeout", 10000);
