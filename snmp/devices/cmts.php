@@ -10,7 +10,7 @@ Class Cmts extends SNMP_Driver {
 			$oidStatus = $this->read(array('name' => $this->mibs['cmtsName'], 
 									  'description' => $this->mibs['cmtsDescription'], 
 									  'uptime' => $this->mibs['cmtsUptime'], 
-									  'cpuUsage' => $this->mibs['cpuUsage'], 
+									  'cpuUsage' => $this->mibs['cmtsCpuUsage'], 
 									  'temperatureIn' => $this->mibs['cmtsTemperatureIn'], 
 									  'temperatureOut' => $this->mibs['cmtsTemperatureOut']));
 			if($oidStatus) {
