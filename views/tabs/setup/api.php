@@ -1,4 +1,4 @@
-<?php if(!function_exists('base_path')) { die("Unauthorized!"); } ?>
+<?php if(!function_exists('base_path')) { die("Unauthorized!"); } date_default_timezone_set("Europe/Berlin"); ?>
 <div class="column col-12">
 	<div class="card">
 		<div class="card-body">

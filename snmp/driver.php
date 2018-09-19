@@ -2,7 +2,8 @@
 
 Class SNMP_Driver {
 	protected $vendor, $hostname, $community, $writeCommunity, $timeout, $retries, $mibs;
-	public function __construct() {
+	public function __construct($hostname) {
+		$this->hostname = $hostname;
 		$this->community = config("snmp.community");
 		$this->writeCommunity = config("write.community") ? config("write.community") : $this->community;
 		$this->timeout = config("snmp.timeout", 10000);
@@ -19,21 +20,22 @@ Class SNMP_Driver {
 		}
 	}
 	public function read($data) {
-		$results = array();
+		snmp_set_valueretrieval(SNMP_VALUE_PLAIN);
 		if(is_string($data)) {
-			$results[$objectID] = trim(shell_exec("snmpwalk -v 2c -Oqv -c {$this->community} {$this->hostname} {$objectID}"));
-			return $results;
+			return snmpget($this->hostname, $this->community, $data, $this->timeout, $this->retries);
 		}
 		if(is_array($data)) {
-			foreach($data as $objectID) {
+			$results = array();
+			foreach($data as $key => $objectID) {
+				$resultKey = (is_numeric($key)) ? $objectID : $key;
 				if(strpos($objectID, '[]') === false) {
-					$results[$objectID] = trim(shell_exec("snmpwalk -v 2c -Oqv -c {$this->community} {$this->hostname} {$objectID}"));
+					$results[$resultKey] = snmpwalk($this->hostname, $this->community, $objectID, $this->timeout, $this->retries);
 				} else {
-					$modoid = str_replace("[]","", $objectID);
-					$res = shell_exec("snmpwalk -v2c -c {$this->community} {$this->hostname} {$modoid}");
-					$res = explode("\n", $res);
+					$plainObjectID = str_replace("[]","", $objectID);
+					$result = snmpwalk($this->hostname, $this->community, $plainObjectID, $this->timeout, $this->retries);
+					$result = explode("\n", $result);
 					$values = array();
-					foreach($res as $r) {
+					foreach($result as $r) {
 						$index = strstr($r, " = ", true);
 						$index = explode(".", $index);
 						$index = array_pop($index);
@@ -41,20 +43,27 @@ Class SNMP_Driver {
 						$value = array_pop($value);
 						$values[$index] = $value;
 					}
-					$results[$objectID] = json_encode($values);
+					$results[$resultKey] = json_encode($values);
 				}
 			}
+			return $results;
 		}
-		return $results;
 	}
 	public function write($data) {
+		if(is_string($data)) {
+			// String Data pattern: {ObjectID}:{DataType}={UpdateValue}
+			$objectID = str_replace("_",".", strstr($data, ":", true));
+			$dataType = strstr($data, ":"); $dataType = strstr($dataType, "=", true);
+			$updateValue = strstr($data, "=");
+			snmpset($this->hostname, $this->writeCommunity, $objectID, $dataType, $updateValue);
+		}
 		if(is_array($data)) {
+			// Array Data pattern: [{ObjectID}:{DataType}] => {UpdateValue}
 			foreach ($data as $objectID => $updateValue) {
 				if(empty($updateValue)) continue;
 				$dataType = strstr($objectID, ":");
 				$objectID = str_replace("_",".", strstr($objectID, ":", true));
-				$r = shell_exec("snmpset -v2c -c {$this->writeCommunity} {$this->hostname} {$objectID} {$dataType} {$updateValue} ");
-				return $r;
+				snmpset($this->hostname, $this->writeCommunity, $objectID, $dataType, $updateValue);
 			}
 		}
 	}
