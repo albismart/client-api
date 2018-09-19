@@ -36,7 +36,7 @@ function config($index = null, $default = null) {
 	if($index) {
 		if(is_string($index)) {
 			$indexes = strpos($index, '.') !== false ? explode('.', $index) : 
-					   strpos($index, '/') !== false ? explode('/', $index) : null;
+					   (strpos($index, '/') !== false ? explode('/', $index) : null);
 			if($indexes) {
 				$index = $indexes;
 			} else {
