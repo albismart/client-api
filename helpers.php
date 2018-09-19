@@ -107,7 +107,7 @@ function configFileContent($post) {
 	$indexPage = (isset($post['indexPage'])) ? 'true' : 'false' ;
 	return '<?php
 
-return [
+return array(
 	"api" => array(
 		"key" => "'.$post['apikey'].'",
 		"version" => "'.$post['version'].'",
@@ -128,7 +128,7 @@ return [
 		"timeout" => "'.$post['timeout'].'",
 		"retries" => "'.$post['retries'].'"
 	)
-];
+);
 
 ?>';
 }

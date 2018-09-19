@@ -11,7 +11,7 @@ Class SNMP_Driver {
 	}
 	private function initializeMibs() {
 		$this->mibs = $this->generalMibs();
-		$vendorMibsFilePath = snmp_path("/vendors/". trim(strtolower($this->vendor)) . ".php");
+		$vendorMibsFilePath = snmp_path("/devices/vendors/". trim(strtolower($this->vendor)) . ".php");
 		$vendorMibs = (file_exists($vendorMibsFilePath)) ? include_once $vendorMibsFilePath : null;
 		foreach ($this->mibs as $mibKey => $mibValue) {
 			if($mibValue!="vendorSpecified") continue;
@@ -59,13 +59,13 @@ Class SNMP_Driver {
 		}
 	}
 	protected function generalMibs() {
-		return [
+		return array(
 			"cmtsName" => "1.3.6.1.2.1.1.5.0", 
 			"cmtsDescription" => "1.3.6.1.2.1.1.1.0",
 			"cmtsUptime" => "1.3.6.1.2.1.1.3.0",
 			"cmtsCpuUsage" => "vendorSpecified",
 			"cmtsTemperatureIn" => "vendorSpecified",
 			"cmtsTemperatureOut" => "vendorSpecified",
-		];
+		);
 	}
 }
