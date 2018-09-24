@@ -30,13 +30,13 @@ After doing get the files inside your `/var/www/html/` dir or your public apache
 - [ ] DHCP Provisioning Management API
 - [ ] OMSHELL API
 - [ ] PPPoE Provisioning Management API
-- [ ] CMTS - SNMP Read, Write API
-- [ ] CableModem - SNMP Read, Write API
+- [x] CMTS - SNMP Read, Write API
+- [x] CableModem - SNMP Read, Write API
 - [ ] OLT - SNMP Read, Write API
 - [ ] ONU/ONT - SNMP Read, Write API
 - [ ] Telnet connection API
 - [ ] Cronjob tasks for fixes, updates and collection purposes
-- [ ] GUI installation index.php, create config.php
+- [x] GUI installation index.php, create config.php
 - [ ] Build an extensive wiki for the repo
 
 ## Contributing

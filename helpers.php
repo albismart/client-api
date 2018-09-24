@@ -71,6 +71,21 @@ function apiLatestVersionObject($index = null) {
 	return ($index) && isset($latestVersionObject->{$index}) ? $latestVersionObject->{$index} : $latestVersionObject;
 }
 
+/*
+serverUptime: returns the uptime based on linux machine clock
+https://stackoverflow.com/questions/38907572/how-to-display-system-uptime-in-php
+Gets the uptime counted in milliseconds and then returns formatted array.
+*/
+function serverUptime() {
+	$rawTime = @file_get_contents('/proc/uptime');
+	$totalTime = floatval($rawTime);
+	$seconds = fmod($totalTime, 60); $totalTime = (int)($totalTime / 60);
+	$minutes = $totalTime % 60; $totalTime = (int)($totalTime / 60);
+	$hours = $totalTime % 24; $totalTime = (int)($totalTime / 24);
+	$days = $totalTime;
+	return array("days" => $days, "hours" => $hours, "minutes" => $minutes, "seconds" => $seconds);
+}
+
 /******** PATHS ********/
 function base_path($path = null) {
 	$base_path = realpath(dirname(__FILE__));
@@ -102,6 +117,7 @@ function views_path($path = null) {
 	return ($path) ? $views_path . $path : $views_path;
 }
 
+/******** Config file formatting helper ********/
 function configFileContent($post) {
 	$autoUpdates = (isset($post['autoUpdates'])) ? 'true' : 'false' ;
 	$indexPage = (isset($post['indexPage'])) ? 'true' : 'false' ;
