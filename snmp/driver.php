@@ -1,7 +1,7 @@
 <?php
 
-include_once snmp_path("/devices/cmts.php");
-include_once snmp_path("/devices/cablemodem.php");
+include_once snmp_path("/cmts/index.php");
+include_once snmp_path("/cablemodem/index.php");
 
 Class SNMP_Driver {
 	protected $vendor, $hostname, $community, $writeCommunity, $timeout, $retries, $mibs;
