@@ -3,5 +3,7 @@
 	$hostname = (isset($_GET['hostname'])) ? $_GET['hostname'] : null;
 	$vendor = (isset($_GET['vendor'])) ? $_GET['vendor'] : "cisco";
 	$cmtsSnmpReader = new Cmts($hostname, $vendor);
-	var_dump($cmtsSnmpReader->info());
+	$cmtsInfo = $cmtsSnmpReader->info();
+	echo "CMTS Info";
+	var_dump($cmtsInfo);
 ?>

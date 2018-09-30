@@ -33,7 +33,7 @@ Class SNMP_Driver {
 			foreach($data as $key => $objectID) {
 				$resultKey = (is_numeric($key)) ? $objectID : $key;
 				if(strpos($objectID, '[]') === false) {
-					$results[$resultKey] = snmpwalk($this->hostname, $this->community, $objectID, $this->timeout, $this->retries);
+					$results[$resultKey] = snmpget($this->hostname, $this->community, $objectID, $this->timeout, $this->retries);
 				} else {
 					$plainObjectID = str_replace("[]","", $objectID);
 					$result = snmpwalk($this->hostname, $this->community, $plainObjectID, $this->timeout, $this->retries);
