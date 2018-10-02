@@ -8,7 +8,7 @@ if(!$config) {
 	} else {
 		file_put_contents(config_path("/config.php"), configFileContent($_POST));
 		file_put_contents(config_path("/dhcp.conf"), $_POST['dhcpconf']);
-		header("Location: http://" . $_SERVER['HTTP_HOST'] . str_replace("/index.php",'',$_SERVER['REQUEST_URI']));
+		header("Location: " . apiRootURL());
 	}
 } else {
 	if(isset($config['api']) && isset($config['api']['indexPage']) && $config['api']['indexPage']==true) {
