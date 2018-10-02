@@ -3,7 +3,7 @@
 $basePath = realpath(dirname(__FILE__));
 require_once $basePath . "/helpers.php";
 
-$config = file_exists(base_path("/config.php")) ? include_once base_path("/config.php") : null;
+$config = file_exists(config_path("/config.php")) ? include_once config_path("/config.php") : null;
 // Prep stuff for setup wizard
 if(!$config) {
 	$latestVersionObject = apiLatestVersionObject();
@@ -18,6 +18,7 @@ if(!$config) {
 		'freeradius' => shell_exec('freeradius -v'),
 		'dhcp' => shell_exec('dhcpd -f'),
 		'omshell' => shell_exec('omshell'),
+		'fileperms' => ltrim(substr(sprintf('%o', fileperms(config_path())), -4),0),
 	);
 }
 
