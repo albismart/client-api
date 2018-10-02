@@ -1,8 +1,7 @@
 <?php
-$linuxInfo = file_get_contents("http://127.0.0.1" . str_replace("/index.php", '', $_SERVER['REQUEST_URI']) . "/info");
+$linuxInfo = file_get_contents(apiRootURL("/info"));
 $linuxInfo = json_decode($linuxInfo);
 ?>
-<style> table.intro { border: 1px solid #ddd; border-radius: 5px; font-family: sans-serif; border-spacing: 0; overflow: hidden; text-align: center; margin-top: 30px; } table.intro th { background: #ddd; color: #848181; padding: 10px; } table.intro td { padding: 10px; } </style>
 <div class="columns">
 	<div class="col-2">&nbsp;</div>
 	<div class="col-8">
