@@ -117,6 +117,11 @@ function views_path($path = null) {
 	return ($path) ? $views_path . $path : $views_path;
 }
 
+function config_path($path = null) {
+	$config_path = base_path('/config');
+	return ($path) ? $config_path . $path : $config_path;
+}
+
 /******** Config file formatting helper ********/
 function configFileContent($post) {
 	$autoUpdates = (isset($post['autoUpdates'])) ? 'true' : 'false' ;
