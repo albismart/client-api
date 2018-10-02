@@ -20,6 +20,13 @@
 	<div class="card">
 		<div class="card-body">
 			<ul>
+				<li>
+					<a href="http://php.net/manual/en/function.fileperms.php" target="_blank">
+						Config dir chmod: 
+						<font v-html="reqs.fileperms"></font>
+						<font v-if="reqs.fileperms!=777">! Please change it to: 777 </font>
+					</a>
+				</li>
 				<li><a href="https://freeradius.org" target="_blank">FreeRadius</a></li>
 				<li><a href="https://www.isc.org/downloads/dhcp/" target="_blank">DHCP Service</a></li>
 				<li><a href="https://linux.die.net/man/1/omshell" target="_blank"> OMSHELL </a></li>
