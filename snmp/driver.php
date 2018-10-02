@@ -1,28 +1,19 @@
 <?php
 
-include_once snmp_path("/cmts/index.php");
-include_once snmp_path("/cablemodem/index.php");
+if(!function_exists('base_path')) { exit(); }
 
 Class SNMP_Driver {
-	protected $vendor, $hostname, $community, $writeCommunity, $timeout, $retries, $mibs;
-	public function __construct($hostname, $vendor) {
-		$this->hostname = $hostname;
-		$this->vendor = $vendor;
+	
+	public $hostname, $vendor;
+	protected $community, $writeCommunity, $timeout, $retries;
+	
+	public function __construct() {
 		$this->community = config("snmp.community");
-		$this->writeCommunity = config("write.community") ? config("write.community") : $this->community;
-		$this->timeout = config("snmp.timeout", 10000);
+		$this->writeCommunity = config("snmp.wcommunity") ? config("snmp.wcommunity") : $this->community;
+		$this->timeout = config("snmp.timeout", 100000);
 		$this->retries = config("snmp.retries", 2);
-		$this->initializeMibs();
 	}
-	private function initializeMibs() {
-		$this->mibs = $this->generalMibs();
-		$vendorMibsFilePath = snmp_path("/devices/vendors/". trim(strtolower($this->vendor)) . ".php");
-		$vendorMibs = (file_exists($vendorMibsFilePath)) ? include_once $vendorMibsFilePath : null;
-		foreach ($this->mibs as $mibKey => $mibValue) {
-			if($mibValue!="vendorSpecified") continue;
-			$this->mibs[$mibKey] = ($mibValue=="vendorSpecified" && $vendorMibs) ? $vendorMibs[$mibKey] : "Unsupported vendor.";
-		}
-	}
+	
 	public function read($data) {
 		snmp_set_valueretrieval(SNMP_VALUE_PLAIN);
 		if(is_string($data)) {
@@ -53,32 +44,26 @@ Class SNMP_Driver {
 			return $results;
 		}
 	}
+	
 	public function write($data) {
 		if(is_string($data)) {
 			// String Data pattern: {ObjectID}:{DataType}={UpdateValue}
 			$objectID = str_replace("_",".", strstr($data, ":", true));
 			$dataType = strstr($data, ":"); $dataType = strstr($dataType, "=", true);
 			$updateValue = strstr($data, "=");
-			snmpset($this->hostname, $this->writeCommunity, $objectID, $dataType, $updateValue);
+			return snmpset($this->hostname, $this->writeCommunity, $objectID, $dataType, $updateValue);
 		}
 		if(is_array($data)) {
 			// Array Data pattern: [{ObjectID}:{DataType}] => {UpdateValue}
+			$bulkWritesResults = array();
 			foreach ($data as $objectID => $updateValue) {
 				if(empty($updateValue)) continue;
 				$dataType = strstr($objectID, ":");
 				$objectID = str_replace("_",".", strstr($objectID, ":", true));
-				snmpset($this->hostname, $this->writeCommunity, $objectID, $dataType, $updateValue);
+				$bulkWritesResults[$objectID] = snmpset($this->hostname, $this->writeCommunity, $objectID, $dataType, $updateValue);
 			}
+			return $bulkWritesResults;
 		}
 	}
-	protected function generalMibs() {
-		return array(
-			"cmtsName" => "1.3.6.1.2.1.1.5.0", 
-			"cmtsDescription" => "1.3.6.1.2.1.1.1.0",
-			"cmtsUptime" => "1.3.6.1.2.1.1.3.0",
-			"cmtsCpuUsage" => "vendorSpecified",
-			"cmtsTemperatureIn" => "vendorSpecified",
-			"cmtsTemperatureOut" => "vendorSpecified",
-		);
-	}
+
 }
