@@ -86,6 +86,16 @@ function serverUptime() {
 	return array("days" => $days, "hours" => $hours, "minutes" => $minutes, "seconds" => $seconds);
 }
 
+/*
+apiRootURL: returns the root URL of the api located on this server.
+http://php.net/manual/en/reserved.variables.server.php
+Using server and execution environment information returns url to api.
+*/
+function apiRootURL($path = null) {
+	$apiRootUrl = "http://" . $_SERVER["HTTP_HOST"] . str_replace("/index.php", "", $_SERVER['REQUEST_URI']);
+	return ($path) ? $apiRootUrl . $path : $apiRootUrl;
+}
+
 /******** PATHS ********/
 function base_path($path = null) {
 	$base_path = realpath(dirname(__FILE__));
