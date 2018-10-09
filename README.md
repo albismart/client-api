@@ -52,6 +52,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 ## Authors
 
 * **Mentor Gashi** - *Initial work* - [mentorgashi](https://github.com/mentorgashi)
+* **Arbnor Gashi** - *Bringing in network standards* - [arbnorgashi](https://github.com/arbnorgashi)
 
 See also the list of [contributors](https://github.com/albismart/client-api/contributors) who participated in this project.
 
