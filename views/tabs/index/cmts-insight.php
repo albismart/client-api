@@ -1,7 +1,7 @@
 <?php
 $hostname = (isset($_GET['hostname'])) ? $_GET['hostname'] : null;
-$linuxInfo = file_get_contents(apiRootURL("/snmp/cmts?hostname=" . $hostname));
-$linuxInfo = json_decode($linuxInfo);
+$cmtsInfo = file_get_contents(apiRootURL("/snmp/cmts?hostname=" . $hostname));
+$cmtsInfo = json_decode($cmtsInfo);
 ?>
 <div class="columns">
 	<div class="col-2">&nbsp;</div>
@@ -9,16 +9,16 @@ $linuxInfo = json_decode($linuxInfo);
 		<table class="intro">
 			<thead>
 				<tr>
-					<th>Operative System</th>
-					<th>Hostname</th>
+					<th>Name</th>
+					<th>Description</th>
 					<th>Uptime</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
-					<td>OS</td>
-					<td>HN</td>
-					<td>UT</td>
+					<td><?php echo $cmtsInfo->name; ?></td>
+					<td><?php echo $cmtsInfo->description; ?></td>
+					<td><?php echo $cmtsInfo->uptime; ?></td>
 				</tr>
 			</tbody>
 		</table>

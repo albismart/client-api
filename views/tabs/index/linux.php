@@ -1,5 +1,4 @@
 <?php
-echo apiRootURL("/info");
 $linuxInfo = file_get_contents(apiRootURL("/info"));
 $linuxInfo = json_decode($linuxInfo);
 ?>
