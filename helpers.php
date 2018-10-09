@@ -92,8 +92,28 @@ http://php.net/manual/en/reserved.variables.server.php
 Using server and execution environment information returns url to api.
 */
 function apiRootURL($path = null) {
-	$apiRootUrl = "http://localhost" . rtrim(str_replace("/index.php", "", $_SERVER['REQUEST_URI']),"/");
+	$reqURI = $_SERVER['REQUEST_URI'];
+	$reqURI = strstr($reqURI, "?", true);
+	$reqURI = str_replace("/index.php", "", $reqURI);
+	$apiRootUrl = "http://localhost" . rtrim($reqURI,"/");
 	return ($path) ? $apiRootUrl . $path : $apiRootUrl;
+}
+
+/*
+returnJson: in case the result param is an json_encoded string we echo the results.
+http://php.net/manual/en/function.header.php
+With the results variable type we alter the headers and deliver the data.
+*/
+function returnJson($result) {
+	$jsonResult = json_encode($result);
+	if(is_string($jsonResult) && strlen($jsonResult)>0) {
+		header('Content-Type: application/json');
+		echo $jsonResult;
+	} else {
+		header("HTTP/1.1 400 Malformed results");
+		echo "The result was malformed.";
+		var_dump($result);
+	}
 }
 
 /******** PATHS ********/
