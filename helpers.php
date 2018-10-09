@@ -92,7 +92,7 @@ http://php.net/manual/en/reserved.variables.server.php
 Using server and execution environment information returns url to api.
 */
 function apiRootURL($path = null) {
-	$apiRootUrl = "http://" . $_SERVER["HTTP_HOST"] . rtrim(str_replace("/index.php", "", $_SERVER['REQUEST_URI']),"/");
+	$apiRootUrl = "http://localhost" . rtrim(str_replace("/index.php", "", $_SERVER['REQUEST_URI']),"/");
 	return ($path) ? $apiRootUrl . $path : $apiRootUrl;
 }
 
