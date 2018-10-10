@@ -72,19 +72,22 @@ function apiLatestVersionObject($index = null) {
 }
 
 /*
-serverUptime: returns the uptime based on linux machine clock
+timeticks: milliseconds to readable time.
 https://stackoverflow.com/questions/38907572/how-to-display-system-uptime-in-php
 Gets the uptime counted in milliseconds and then returns formatted array.
 */
-function serverUptime() {
-	$rawTime = @file_get_contents('/proc/uptime');
-	$totalTime = floatval($rawTime);
-	$seconds = fmod($totalTime, 60); $totalTime = (int)($totalTime / 60);
-	$minutes = $totalTime % 60; $totalTime = (int)($totalTime / 60);
-	$hours = $totalTime % 24; $totalTime = (int)($totalTime / 24);
+function readableTimeticks($timeticks = null) {
+	if($timeticks==null) {
+		$timeticks = @file_get_contents('/proc/uptime');
+	}
+	$totalTime = floatval($timeticks);
+	$seconds = floor(fmod($totalTime, 60)); $totalTime = (int)($totalTime / 60); if($seconds<10) { $seconds = "0{$seconds}"; }
+	$minutes = $totalTime % 60; $totalTime = (int)($totalTime / 60); if($minutes<10) { $minutes = "0{$minutes}"; }
+	$hours = $totalTime % 24; $totalTime = (int)($totalTime / 24); if($hours<10) { $hours = "0{$hours}"; }
 	$days = $totalTime;
 	return array("days" => $days, "hours" => $hours, "minutes" => $minutes, "seconds" => $seconds);
 }
+
 
 /*
 apiRootURL: returns the root URL of the api located on this server.
@@ -93,7 +96,8 @@ Using server and execution environment information returns url to api.
 */
 function apiRootURL($path = null) {
 	$reqURI = $_SERVER['REQUEST_URI'];
-	$reqURI = strstr($reqURI, "?", true);
+	$uriBeforeQuestionMark = strstr($reqURI, "?", true);
+	$reqURI = ($uriBeforeQuestionMark) ? $uriBeforeQuestionMark : $reqURI;
 	$reqURI = str_replace("/index.php", "", $reqURI);
 	$apiRootUrl = "http://localhost" . rtrim($reqURI,"/");
 	return ($path) ? $apiRootUrl . $path : $apiRootUrl;

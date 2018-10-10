@@ -29,12 +29,17 @@ Class Cmts extends SNMP_Driver {
 		$infoStats = $this->read(array(
 			'name' => $this->mibs['name'], 
 			'description' => $this->mibs['description'], 
+			'objectID' => $this->mibs['objectID'], 
+			'contact' => $this->mibs['contact'], 
+			'location' => $this->mibs['location'], 
+			'services' => $this->mibs['services'], 
 			'uptime' => $this->mibs['uptime'], 
 			'cpuUsage' => $this->mibs['cpuUsage'], 
 			'temperatureIn' => $this->mibs['temperatureIn'], 
 			'temperatureOut' => $this->mibs['temperatureOut']
 		));
 		if($infoStats) {
+			$infoStats['uptime'] = readableTimeticks($infoStats['uptime']/100);
 			returnJson($infoStats);
 		} else {
 			echo "Operation failed";
