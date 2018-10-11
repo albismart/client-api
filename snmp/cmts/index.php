@@ -6,19 +6,12 @@ $basePath = strstr($basePath, "client-api/", true) . "client-api";
 include_once $basePath . "/bootstrap.php";
 include_once snmp_path("/driver.php");
 
-$hostname = (isset($_GET["hostname"])) ? $_GET["hostname"] : null;
-$action = (isset($_GET["action"])) ? $_GET["action"] : "info";
-$vendor = (isset($_GET["vendor"])) ? $_GET["vendor"] : "cisco";
-
 Class Cmts extends SNMP_Driver {
-
-	public $hostname, $vendor;
-
-	public function __construct($hostname, $vendor) {
+	public function __construct() {
 		parent::__construct();
-		$this->hostname = $hostname;
-		$this->vendor = $vendor;
-		$cmtsMIB = include_once snmp_path("/cmts/vendors/{$vendor}.php");
+		$this->hostname = (isset($_GET["hostname"])) ? $_GET["hostname"] : null;
+		$this->vendor = (isset($_GET["vendor"])) ? $_GET["vendor"] : "cisco";
+		$cmtsMIB = include_once snmp_path("/cmts/vendors/{$this->vendor}.php");
 		$this->mibs = array_merge($this->mibs, $cmtsMIB);
 	}
 
@@ -27,16 +20,16 @@ Class Cmts extends SNMP_Driver {
 	*************************************************/
 	public function info() {
 		$infoStats = $this->read(array(
-			'name' => $this->mibs['name'], 
-			'description' => $this->mibs['description'], 
-			'objectID' => $this->mibs['objectID'], 
-			'contact' => $this->mibs['contact'], 
-			'location' => $this->mibs['location'], 
-			'services' => $this->mibs['services'], 
-			'uptime' => $this->mibs['uptime'], 
-			'cpuUsage' => $this->mibs['cpuUsage'], 
-			'temperatureIn' => $this->mibs['temperatureIn'], 
-			'temperatureOut' => $this->mibs['temperatureOut']
+			'name', 
+			'description', 
+			'objectID', 
+			'contact', 
+			'location', 
+			'uptime', 
+			'cpuUsage',
+			'temperatureIn',
+			'temperatureOut',
+			'countInterfaces'
 		));
 		if($infoStats) {
 			$infoStats['uptime'] = readableTimeticks($infoStats['uptime']/100);
@@ -45,10 +38,30 @@ Class Cmts extends SNMP_Driver {
 			echo "Operation failed";
 		}
 	}
+	
+	/***********************************************
+	*	linuxIP/snmp/cmts/?hostname={hostname}&action=interfaces
+	*************************************************/
+	public function interfaces() {
+		$interfacesInsight = $this->read(array(
+			'interface.index[]', 
+			'interface.description[]', 
+			'interface.adminStatus[]', 
+			'interface.operationStatus[]', 
+			'interface.speed[]', 
+
+		));
+		if($interfacesInsight) {
+			returnJson($interfacesInsight);
+		} else {
+			echo "Operation failed";
+		}
+	}
 
 }
 
-$cmtsSNMPDriver = new Cmts($hostname, $vendor);
+$action = (isset($_GET["action"])) ? $_GET["action"] : "info";
+$cmtsSNMPDriver = new Cmts();
 $cmtsSNMPDriver->$action();
 
 ?>
