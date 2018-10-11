@@ -13,31 +13,36 @@ $vendor = (isset($_GET["vendor"])) ? $_GET["vendor"] : "cisco";
 Class Cmts extends SNMP_Driver {
 
 	public $hostname, $vendor;
-	protected $mibs;
 
 	public function __construct($hostname, $vendor) {
 		parent::__construct();
 		$this->hostname = $hostname;
 		$this->vendor = $vendor;
-		$this->mibs = include_once snmp_path("cmts/vendors/{$vendor}.php");
+		$cmtsMIB = include_once snmp_path("/cmts/vendors/{$vendor}.php");
+		$this->mibs = array_merge($this->mibs, $cmtsMIB);
 	}
 
 	/***********************************************
-	*	linuxIP/snmp/?device=cmts&action=info&hostname={hostname}
+	*	linuxIP/snmp/cmts/?hostname={hostname}
 	*************************************************/
 	public function info() {
-		$oidStatus = $this->read(array(
-			'name' => $this->mibs['cmtsName'], 
-			'description' => $this->mibs['cmtsDescription'], 
-			'uptime' => $this->mibs['cmtsUptime'], 
-			'cpuUsage' => $this->mibs['cmtsCpuUsage'], 
-			'temperatureIn' => $this->mibs['cmtsTemperatureIn'], 
-			'temperatureOut' => $this->mibs['cmtsTemperatureOut']
+		$infoStats = $this->read(array(
+			'name' => $this->mibs['name'], 
+			'description' => $this->mibs['description'], 
+			'objectID' => $this->mibs['objectID'], 
+			'contact' => $this->mibs['contact'], 
+			'location' => $this->mibs['location'], 
+			'services' => $this->mibs['services'], 
+			'uptime' => $this->mibs['uptime'], 
+			'cpuUsage' => $this->mibs['cpuUsage'], 
+			'temperatureIn' => $this->mibs['temperatureIn'], 
+			'temperatureOut' => $this->mibs['temperatureOut']
 		));
-		if($oidStatus) {
-			return json_encode($oidStatus);
+		if($infoStats) {
+			$infoStats['uptime'] = readableTimeticks($infoStats['uptime']/100);
+			returnJson($infoStats);
 		} else {
-			return "Operation failed";
+			echo "Operation failed";
 		}
 	}
 

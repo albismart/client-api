@@ -5,13 +5,14 @@ if(!function_exists('base_path')) { exit(); }
 Class SNMP_Driver {
 	
 	public $hostname, $vendor;
-	protected $community, $writeCommunity, $timeout, $retries;
+	protected $community, $writeCommunity, $timeout, $retries, $mibs;
 	
 	public function __construct() {
 		$this->community = config("snmp.community");
 		$this->writeCommunity = config("snmp.wcommunity") ? config("snmp.wcommunity") : $this->community;
 		$this->timeout = config("snmp.timeout", 100000);
 		$this->retries = config("snmp.retries", 2);
+		$this->mibs = include_once snmp_path("/albismart-mib.php");
 	}
 	
 	public function read($data) {

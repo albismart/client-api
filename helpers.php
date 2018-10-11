@@ -72,19 +72,22 @@ function apiLatestVersionObject($index = null) {
 }
 
 /*
-serverUptime: returns the uptime based on linux machine clock
+timeticks: milliseconds to readable time.
 https://stackoverflow.com/questions/38907572/how-to-display-system-uptime-in-php
 Gets the uptime counted in milliseconds and then returns formatted array.
 */
-function serverUptime() {
-	$rawTime = @file_get_contents('/proc/uptime');
-	$totalTime = floatval($rawTime);
-	$seconds = fmod($totalTime, 60); $totalTime = (int)($totalTime / 60);
-	$minutes = $totalTime % 60; $totalTime = (int)($totalTime / 60);
-	$hours = $totalTime % 24; $totalTime = (int)($totalTime / 24);
+function readableTimeticks($timeticks = null) {
+	if($timeticks==null) {
+		$timeticks = @file_get_contents('/proc/uptime');
+	}
+	$totalTime = floatval($timeticks);
+	$seconds = floor(fmod($totalTime, 60)); $totalTime = (int)($totalTime / 60); if($seconds<10) { $seconds = "0{$seconds}"; }
+	$minutes = $totalTime % 60; $totalTime = (int)($totalTime / 60); if($minutes<10) { $minutes = "0{$minutes}"; }
+	$hours = $totalTime % 24; $totalTime = (int)($totalTime / 24); if($hours<10) { $hours = "0{$hours}"; }
 	$days = $totalTime;
 	return array("days" => $days, "hours" => $hours, "minutes" => $minutes, "seconds" => $seconds);
 }
+
 
 /*
 apiRootURL: returns the root URL of the api located on this server.
@@ -92,8 +95,29 @@ http://php.net/manual/en/reserved.variables.server.php
 Using server and execution environment information returns url to api.
 */
 function apiRootURL($path = null) {
-	$apiRootUrl = "http://localhost" . rtrim(str_replace("/index.php", "", $_SERVER['REQUEST_URI']),"/");
+	$reqURI = $_SERVER['REQUEST_URI'];
+	$uriBeforeQuestionMark = strstr($reqURI, "?", true);
+	$reqURI = ($uriBeforeQuestionMark) ? $uriBeforeQuestionMark : $reqURI;
+	$reqURI = str_replace("/index.php", "", $reqURI);
+	$apiRootUrl = "http://localhost" . rtrim($reqURI,"/");
 	return ($path) ? $apiRootUrl . $path : $apiRootUrl;
+}
+
+/*
+returnJson: in case the result param is an json_encoded string we echo the results.
+http://php.net/manual/en/function.header.php
+With the results variable type we alter the headers and deliver the data.
+*/
+function returnJson($result) {
+	$jsonResult = json_encode($result);
+	if(is_string($jsonResult) && strlen($jsonResult)>0) {
+		header('Content-Type: application/json');
+		echo $jsonResult;
+	} else {
+		header("HTTP/1.1 400 Malformed results");
+		echo "The result was malformed.";
+		var_dump($result);
+	}
 }
 
 /******** PATHS ********/
