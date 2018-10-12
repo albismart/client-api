@@ -1,12 +1,17 @@
 <?php
 
+$basePath = realpath(dirname(__FILE__));
+$basePath = strstr($basePath, "client-api/", true) . "client-api";
+
+include_once $basePath . "/bootstrap.php";
+
 // Providing some Machine Info at a glance
 $meminfo = file_exists("/proc/meminfo") ? file("/proc/meminfo") : 0;
 $networkInfo = shell_exec("ifconfig -a");
 $linuxInfo = array(
 	"os" => php_uname("s") . " " . php_uname("r"), //OS and version
 	"hostname" => php_uname("n"),
-	"uptime" => serverUptime(),
+	"uptime" => readableTimeticks(),
 	"totalDisk" => disk_total_space("/") / 1024, // Returns kilobytes
 	"freeDisk" => disk_free_space("/") / 1024, // Returns kilobytes
 	"totalMemory" => intval(preg_replace("/[^0-9]/", "", $meminfo[0])), // Returns kilobytes
@@ -33,16 +38,6 @@ function mapNetworkInfo($networkInfo, $info) {
 	$result = explode(" ", array_pop($result));
 	$result = array_shift($result);
 	return trim($result);
-}
-
-function serverUptime() {
-	$rawTime = @file_get_contents('/proc/uptime');
-	$totalTime = floatval($rawTime);
-	$seconds = fmod($totalTime, 60); $totalTime = (int)($totalTime / 60);
-	$minutes = $totalTime % 60; $totalTime = (int)($totalTime / 60);
-	$hours = $totalTime % 24; $totalTime = (int)($totalTime / 24);
-	$days = $totalTime;
-	return array("days" => $days, "hours" => $hours, "minutes" => $minutes, "seconds" => $seconds);
 }
 
 echo json_encode($linuxInfo);

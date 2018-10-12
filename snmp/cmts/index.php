@@ -69,6 +69,15 @@ Class Cmts extends SNMP_Driver {
 			'cablemodem.uptime[]', 
 		), SNMP_VALUE_LIBRARY);
 		if($cableModemList) {
+			foreach($cableModemList["cablemodem.mac[]"] as $cmKey => $cmMac) {
+				$cableModemList["cablemodem.mac[]"][$cmKey] = str_replace(" ",":", trim(str_replace("Hex-STRING:", "", $cmMac)));
+			}
+			foreach($cableModemList["cablemodem.ip[]"] as $cmKey => $cmIP) {
+				$cableModemList["cablemodem.ip[]"][$cmKey] = trim(str_replace("IpAddress:", "", $cmIP));
+			}
+			foreach($cableModemList["cablemodem.status[]"] as $cmKey => $cmStatus) {
+				$cableModemList["cablemodem.status[]"][$cmKey] = trim(str_replace("INTEGER:","", $cmStatus));
+			}
 			foreach($cableModemList["cablemodem.uptime[]"] as $cmKey => $cmUptime) {
 				$cableModemList["cablemodem.uptime[]"][$cmKey] = readableTimeticks($cmUptime/100);
 			}

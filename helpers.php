@@ -94,12 +94,13 @@ apiRootURL: returns the root URL of the api located on this server.
 http://php.net/manual/en/reserved.variables.server.php
 Using server and execution environment information returns url to api.
 */
-function apiRootURL($path = null) {
+function apiRootURL($path = null, $httpHost = false) {
 	$reqURI = $_SERVER['REQUEST_URI'];
 	$uriBeforeQuestionMark = strstr($reqURI, "?", true);
 	$reqURI = ($uriBeforeQuestionMark) ? $uriBeforeQuestionMark : $reqURI;
 	$reqURI = str_replace("/index.php", "", $reqURI);
-	$apiRootUrl = "http://localhost" . rtrim($reqURI,"/");
+	$apiRootUrl = ($httpHost==true) ? "http://" . $_SERVER['HTTP_HOST'] : "http://localhost";
+	$apiRootUrl.= rtrim($reqURI,"/");
 	return ($path) ? $apiRootUrl . $path : $apiRootUrl;
 }
 

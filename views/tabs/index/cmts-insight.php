@@ -36,7 +36,10 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 					<th>Temperature IN</th>
 					<th>Temperature Out</th>
 					<th>Total interfaces</th>
-					<th>Total cablemodems</th>
+					<th>
+						Total Cable Modems
+						<a href="<?php echo apiRootURL(null, true); ?>/snmp/cmts?hostname=<?php echo $hostname; ?>" title="Open new tab" target="_blank" class="new-tab-anchor"> API Request </a>
+					</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -47,9 +50,7 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 					</td>
 					<td><span id="cmtsUptime"><?php
 						if($cmtsInfo->uptime->days) { echo $cmtsInfo->uptime->days . " days, "; }
-						if($cmtsInfo->uptime->hours) { echo $cmtsInfo->uptime->hours; }
-						if($cmtsInfo->uptime->minutes) { echo ":" . $cmtsInfo->uptime->minutes; }
-						if($cmtsInfo->uptime->seconds) { echo ":" . $cmtsInfo->uptime->seconds; }
+						echo $cmtsInfo->uptime->hours . ":" . $cmtsInfo->uptime->minutes . ":" . $cmtsInfo->uptime->seconds;
 					?></span></td>
 					<td><span id="cmtsCpuUsage"><?php echo $cmtsInfo->cpuUsage; ?></span>%</td>
 					<td><span id="cmtsTemperatureIn"><?php echo $cmtsInfo->temperatureIn; ?></span> °C</td>
@@ -68,13 +69,14 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 					</td>
 				</tr>
 			</tbody>
-		</table>
+		</table>		
 		
 		<table class="card">
 			<thead class="header" onclick="toggleNext(this)">
 				<tr>
 					<th colspan="4" class="noselect">
 						Interfaces (<?php echo $cmtsInfo->countInterfaces; ?>)
+						<a href="<?php echo apiRootURL(null, true); ?>/snmp/cmts?hostname=<?php echo $hostname; ?>&action=interfaces" title="Open new tab" target="_blank" class="new-tab-anchor"> API Request </a>
 					</th>
 				</tr>
 			</thead>
@@ -101,6 +103,7 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 				<tr>
 					<th colspan="4" class="noselect">
 						Cable Modems (<?php echo count($cmtsCableModems->{$cableModemMacKey}); ?>)
+						<a href="<?php echo apiRootURL(null, true); ?>/snmp/cmts?hostname=<?php echo $hostname; ?>&action=cablemodems" title="Open new tab" target="_blank" class="new-tab-anchor"> API Request </a>
 					</th>
 				</tr>
 			</thead>
@@ -111,13 +114,12 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 				<?php $macKey = 'cablemodem.mac[]'; $ipKey = 'cablemodem.ip[]'; 
 					  $statusKey = 'cablemodem.status[]'; $uptimeKey = 'cablemodem.uptime[]'; $m = 0;
 					foreach($cmtsCableModems->{$macKey} as $cmKey => $cmMac) { $m++;
-						$mac = str_replace(" ",":", trim(str_replace("Hex-STRING:", "", $cmMac)));
 						$ip = trim(str_replace("IpAddress:", "", $cmtsCableModems->{$ipKey}[$cmKey]));
 						if($m==1) { echo '<tr>'; } ?>
-						<td class="cablemodem <?php echo strtolower(strtolower(str_replace(":","-",$mac))); ?>">
-							<font style="font-size:16px"><?php echo $mac; ?> </font> <br/>
-							<font style="font-size:16px"><?php echo $ip; ?> </font> <br/>
-							<font style="font-size:14px"> Status: <?php echo trim(str_replace("INTEGER:","", $cmtsCableModems->{$statusKey}[$cmKey])); ?> </font> <br/>
+						<td class="cablemodem <?php echo strtolower(strtolower(str_replace(":","-",$cmMac))); ?>">
+							<font style="font-size:16px"><?php echo $cmMac; ?> </font> <br/>
+							<font style="font-size:16px"><?php echo $cmtsCableModems->{$ipKey}[$cmKey]; ?> </font> <br/>
+							<font style="font-size:14px"> Status: <?php echo $cmtsCableModems->{$statusKey}[$cmKey]; ?> </font> <br/>
 							<?php $uptime = $cmtsCableModems->{$uptimeKey}[$cmKey];
 								if($uptime->days) { echo $uptime->days . " days, "; }
 								if($uptime->hours) { echo $uptime->hours; }
@@ -133,16 +135,7 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 	</div>
 </div>
 <script>
-function httpGetAsync(theUrl, callback)
-{
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
-    }
-    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
-    xmlHttp.send(null);
-}
+
 var requestLoop = setInterval(function(){
 	httpGetAsync("<?php echo $jsCmtsInfoUrl; ?>", function(response) {
 		var data = JSON.parse(response);
@@ -168,19 +161,11 @@ function toggleCmtsDetails() {
 		document.getElementById("cmtsDetails").style.display = "none";
 	}
 }
-function toggleNext() {
-	var target = window.event.target;
-	var tableList = target.parentElement.parentElement.nextSibling.nextSibling;
-	console.log(tableList);
-	tableList.style.display = (tableList.style.display == "none") ? "table-row-group" : "none";
-}
 function filterList(itemClass) {
 	var target = window.event.target;
 	var query = target.value;
 	query = query.trim(); query = query.toLowerCase(); query = query.replace("/","-"); query = query.replace(":","-");
-	
 	var items = document.getElementsByClassName(itemClass);
-
 	if(query.length>0) {	
 		for(var i = 0;i<items.length;i++) { items[i].style.display = "none"; }
 		var foundItems = document.querySelectorAll("[class*='" +itemClass+ " " +query+"']");

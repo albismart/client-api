@@ -1,5 +1,10 @@
 <?php
 
+$basePath = realpath(dirname(__FILE__));
+$basePath = strstr($basePath, "client-api/", true) . "client-api";
+
+include_once $basePath . "/bootstrap.php";
+
 class Cablemodem extends SNMP_Driver {
 	/***********************************************
 	*	linuxIP/snmp/cablemodem/info/{mac}
