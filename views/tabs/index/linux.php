@@ -5,8 +5,8 @@ $linuxInfo = json_decode($linuxInfo);
 <div class="columns">
 	<div class="col-2">&nbsp;</div>
 	<div class="col-8">
-		<table class="intro">
-			<thead>
+		<table class="card">
+			<thead class="header">
 				<tr>
 					<th>Operative System</th>
 					<th>Hostname</th>

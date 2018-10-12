@@ -38,6 +38,12 @@ return array(
 		"outNotUnicastPackets"	=> "1.3.6.1.2.1.2.2.1.18.{lastIndex}",
 		"outDiscards"			=> "1.3.6.1.2.1.2.2.1.19.{lastIndex}",
 		"outErrors"				=> "1.3.6.1.2.1.2.2.1.20.{lastIndex}",
+	),
+	"cablemodem" => array(
+		"mac"					=> "1.3.6.1.2.1.10.127.1.3.3.1.2.{lastIndex}",
+		"ip"					=> "1.3.6.1.2.1.10.127.1.3.3.1.3.{lastIndex}",
+		"status"				=> "1.3.6.1.2.1.10.127.1.3.3.1.9.{lastIndex}",
+		"uptime"				=> "1.3.6.1.2.1.10.127.1.3.3.1.22.{lastIndex}",
 	)
 );
 

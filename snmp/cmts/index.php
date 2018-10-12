@@ -58,6 +58,25 @@ Class Cmts extends SNMP_Driver {
 		}
 	}
 
+	/***********************************************
+	*	linuxIP/snmp/cmts/?hostname={hostname}&action=cablemodems
+	*************************************************/
+	public function cablemodems() {
+		$cableModemList = $this->read(array(
+			'cablemodem.mac[]', 
+			'cablemodem.ip[]', 
+			'cablemodem.status[]', 
+			'cablemodem.uptime[]', 
+		), SNMP_VALUE_LIBRARY);
+		if($cableModemList) {
+			foreach($cableModemList["cablemodem.uptime[]"] as $cmKey => $cmUptime) {
+				$cableModemList["cablemodem.uptime[]"][$cmKey] = readableTimeticks($cmUptime/100);
+			}
+			returnJson($cableModemList);
+		} else {
+			echo "Operation failed";
+		}
+	}
 }
 
 $action = (isset($_GET["action"])) ? $_GET["action"] : "info";

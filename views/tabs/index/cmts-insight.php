@@ -13,8 +13,16 @@ $cmtsInterfacesUrl = apiRootURL("/snmp/cmts?hostname=" . $hostname . "&action=in
 $cmtsInterfaces = file_get_contents($cmtsInterfacesUrl);
 $cmtsInterfaces = json_decode($cmtsInterfaces);
 
+// CMTS CableModems API Call example
+$cmtsCableModemsUrl = apiRootURL("/snmp/cmts?hostname=" . $hostname . "&action=cablemodems");
+$cmtsCableModems = file_get_contents($cmtsCableModemsUrl);
+$cmtsCableModems = json_decode($cmtsCableModems);
+
+$cableModemMacKey = 'cablemodem.mac[]'; 
+
 $jsCmtsInfoUrl = "http://".$_SERVER['HTTP_HOST'] . strstr(str_replace("/index.php","",$_SERVER['REQUEST_URI']),"?",true);
 $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
+
 ?>
 <div class="columns">
 	<div class="col-2">&nbsp;</div>
@@ -28,6 +36,7 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 					<th>Temperature IN</th>
 					<th>Temperature Out</th>
 					<th>Total interfaces</th>
+					<th>Total cablemodems</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -46,9 +55,10 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 					<td><span id="cmtsTemperatureIn"><?php echo $cmtsInfo->temperatureIn; ?></span> °C</td>
 					<td><span id="cmtsTemperatureOut"><?php echo $cmtsInfo->temperatureOut; ?></span> °C</td>
 					<td><span id="cmtsCountInterfaces"><?php echo $cmtsInfo->countInterfaces; ?></span></td>
+					<td><?php echo count($cmtsCableModems->{$cableModemMacKey}); ?></td>
 				</tr>
 				<tr id="cmtsDetails" style="display:none">
-					<td colspan="6" style="border-top: 1px solid #ccc;padding: 20px;line-height:30px">
+					<td colspan="7" style="border-top: 1px solid #ccc;padding: 20px;line-height:30px">
 						<?php
 							echo str_replace(",","<br/>",$cmtsInfo->description) . "<hr/>";
 							if($cmtsInfo->objectID) { echo $cmtsInfo->objectID . "<hr/>"; }
@@ -61,18 +71,20 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 		</table>
 		
 		<table class="card">
-			<thead class="header">
+			<thead class="header" onclick="toggleNext(this)">
 				<tr>
-					<th colspan="4">Interfaces</th>
+					<th colspan="4" class="noselect">
+						Interfaces (<?php echo $cmtsInfo->countInterfaces; ?>)
+					</th>
 				</tr>
 			</thead>
-			<tbody>
+			<tbody style="display:none">
 				<td colspan="4">
-					<input type="text" id="searchField" onkeypress="filterList()" onkeyup="filterList()" onblur="filterList()" placeholder="Search ..." style="width:98%;padding:8px;border-radius:3px;border:1px solid #bbb" />
+					<input onkeypress="filterList('interface')" onkeyup="filterList()" onblur="filterList()" placeholder="Search ..." style="width:98%;padding:8px;border-radius:3px;border:1px solid #bbb" />
 				</td>
 				<?php $indexKey = 'interface.index[]'; $descriptionKey = 'interface.description[]'; 
 					  $adminStatusKey = 'interface.adminStatus[]'; $operationStatusKey = 'interface.operationStatus[]'; $c = 0;
-					foreach($cmtsInterfaces->$indexKey as $cmtsInterfaceKey => $cmtsInterface) { $c++; ?>
+					foreach($cmtsInterfaces->{$indexKey} as $cmtsInterfaceKey => $cmtsInterface) { $c++; ?>
 					<?php if($c==1) { echo '<tr>'; } ?>
 						<td class="interface <?php echo strtolower(trim(str_replace("/","-",$cmtsInterfaces->{$descriptionKey}[$cmtsInterfaceKey]))); ?>">
 							<font style="font-size:18px"> <?php echo $cmtsInterfaces->{$descriptionKey}[$cmtsInterfaceKey]; ?> </font> <br/>
@@ -83,6 +95,41 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 				<?php } ?>
 			</tbody>
 		</table>
+	
+		<table class="card">
+			<thead class="header" onclick="toggleNext(this)">
+				<tr>
+					<th colspan="4" class="noselect">
+						Cable Modems (<?php echo count($cmtsCableModems->{$cableModemMacKey}); ?>)
+					</th>
+				</tr>
+			</thead>
+			<tbody style="display:none">
+				<td colspan="4">
+					<input onkeypress="filterList('cablemodem')" onkeyup="filterList()" onblur="filterList()" placeholder="Search ..." style="width:98%;padding:8px;border-radius:3px;border:1px solid #bbb" />
+				</td>
+				<?php $macKey = 'cablemodem.mac[]'; $ipKey = 'cablemodem.ip[]'; 
+					  $statusKey = 'cablemodem.status[]'; $uptimeKey = 'cablemodem.uptime[]'; $m = 0;
+					foreach($cmtsCableModems->{$macKey} as $cmKey => $cmMac) { $m++;
+						$mac = str_replace(" ",":", trim(str_replace("Hex-STRING:", "", $cmMac)));
+						$ip = trim(str_replace("IpAddress:", "", $cmtsCableModems->{$ipKey}[$cmKey]));
+						if($m==1) { echo '<tr>'; } ?>
+						<td class="cablemodem <?php echo strtolower(strtolower(str_replace(":","-",$mac))); ?>">
+							<font style="font-size:16px"><?php echo $mac; ?> </font> <br/>
+							<font style="font-size:16px"><?php echo $ip; ?> </font> <br/>
+							<font style="font-size:14px"> Status: <?php echo trim(str_replace("INTEGER:","", $cmtsCableModems->{$statusKey}[$cmKey])); ?> </font> <br/>
+							<?php $uptime = $cmtsCableModems->{$uptimeKey}[$cmKey];
+								if($uptime->days) { echo $uptime->days . " days, "; }
+								if($uptime->hours) { echo $uptime->hours; }
+								if($uptime->minutes) { echo ":" . $uptime->minutes; }
+								if($uptime->seconds) { echo ":" . $uptime->seconds; }
+							?>
+						</td>
+					<?php if($m==4) { echo '</tr>'; $m=0; } ?>
+				<?php } ?>
+			</tbody>
+		</table>
+	
 	</div>
 </div>
 <script>
@@ -121,17 +168,25 @@ function toggleCmtsDetails() {
 		document.getElementById("cmtsDetails").style.display = "none";
 	}
 }
-function filterList() {
-	var query = document.getElementById("searchField").value;
-	query = query.trim(); query = query.toLowerCase(); query = query.replace("/","-");
-	var interfaces = document.getElementsByClassName("interface");
+function toggleNext() {
+	var target = window.event.target;
+	var tableList = target.parentElement.parentElement.nextSibling.nextSibling;
+	console.log(tableList);
+	tableList.style.display = (tableList.style.display == "none") ? "table-row-group" : "none";
+}
+function filterList(itemClass) {
+	var target = window.event.target;
+	var query = target.value;
+	query = query.trim(); query = query.toLowerCase(); query = query.replace("/","-"); query = query.replace(":","-");
 	
+	var items = document.getElementsByClassName(itemClass);
+
 	if(query.length>0) {	
-		for(var i = 0;i<interfaces.length;i++) { interfaces[i].style.display = "none"; }
-		var foundInterfaces = document.querySelectorAll("[class*='interface "+query+"']");
-		for(var j = 0;j<foundInterfaces.length;j++) { foundInterfaces[j].style.display = "table-cell"; }
+		for(var i = 0;i<items.length;i++) { items[i].style.display = "none"; }
+		var foundItems = document.querySelectorAll("[class*='" +itemClass+ " " +query+"']");
+		for(var j = 0;j<foundItems.length;j++) { foundItems[j].style.display = "table-cell"; }
 	} else {
-		for(var i = 0;i<interfaces.length;i++) { interfaces[i].style.display = "table-cell"; }
+		for(var i = 0;i<items.length;i++) { items[i].style.display = "table-cell"; }
 	}
 }
 </script>
