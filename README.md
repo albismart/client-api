@@ -1,5 +1,8 @@
 ![alt text](http://albismart.com/client-api.png "Logo")
 
+[![Client API - Intro](http://albismart.com/clientapi-preview.gif)](https://www.youtube.com/watch?v=RVfij_-W1y0)
+
+
 AlbiSmart client-api is an opensource project, MIT-licensed. It is maintained by the core developers of AlbiSmart company. Open to any contributors willing to give their very own to the Internet Provisioning community.
 
 ## Introduction
