@@ -43,48 +43,51 @@ Class Cmts extends SNMP_Driver {
 	*	linuxIP/snmp/cmts/?hostname={hostname}&action=interfaces
 	*************************************************/
 	public function interfaces() {
-		$interfacesInsight = $this->read(array(
-			'interface.index[]', 
-			'interface.description[]', 
-			'interface.adminStatus[]', 
-			'interface.operationStatus[]', 
-			'interface.speed[]', 
-
-		));
-		if($interfacesInsight) {
-			returnJson($interfacesInsight);
-		} else {
-			echo "Operation failed";
+		$interfaces = array();
+		$interfacesIndexes = $this->read('interface.index[]');
+		foreach($interfacesIndexes as $interfaceIndex) {
+			$interface = new stdClass;
+	
+			$interface->index = $interfaceIndex;
+			$interface->type = $this->read("interface.type",SNMP_VALUE_PLAIN, $interfaceIndex);
+			$interface->description = $this->read("interface.description",SNMP_VALUE_PLAIN, $interfaceIndex);
+			$interface->adminStatus = $this->read("interface.adminStatus",SNMP_VALUE_PLAIN, $interfaceIndex);
+			$interface->operationStatus = $this->read("interface.operationStatus",SNMP_VALUE_PLAIN, $interfaceIndex);
+			$interface->speed = $this->read("interface.speed",SNMP_VALUE_PLAIN, $interfaceIndex);
+			$interfaces[] = $interface;
 		}
+		
+		returnJson($interfaces);
 	}
 
 	/***********************************************
 	*	linuxIP/snmp/cmts/?hostname={hostname}&action=cablemodems
 	*************************************************/
 	public function cablemodems() {
-		$cableModemList = $this->read(array(
-			'cablemodem.mac[]', 
-			'cablemodem.ip[]', 
-			'cablemodem.status[]', 
-			'cablemodem.uptime[]', 
-		), SNMP_VALUE_LIBRARY);
-		if($cableModemList) {
-			foreach($cableModemList["cablemodem.mac[]"] as $cmKey => $cmMac) {
-				$cableModemList["cablemodem.mac[]"][$cmKey] = str_replace(" ",":", trim(str_replace("Hex-STRING:", "", $cmMac)));
+		$cableModems = array();
+		$cableModemList = $this->read('cablemodem.mac[]', SNMP_VALUE_LIBRARY);
+
+		foreach($cableModemList as $cableModemMac) {
+			$cableModem = new stdClass;
+			$cableModemMac = trim(str_replace("STRING:", "", $cableModemMac));
+			$cmMacHexToDec = explode(":", $cableModemMac);
+			foreach($cmMacHexToDec as $key => $value) {
+				$cmMacHexToDec[$key] = hexdec($value);
 			}
-			foreach($cableModemList["cablemodem.ip[]"] as $cmKey => $cmIP) {
-				$cableModemList["cablemodem.ip[]"][$cmKey] = trim(str_replace("IpAddress:", "", $cmIP));
-			}
-			foreach($cableModemList["cablemodem.status[]"] as $cmKey => $cmStatus) {
-				$cableModemList["cablemodem.status[]"][$cmKey] = trim(str_replace("INTEGER:","", $cmStatus));
-			}
-			foreach($cableModemList["cablemodem.uptime[]"] as $cmKey => $cmUptime) {
-				$cableModemList["cablemodem.uptime[]"][$cmKey] = readableTimeticks($cmUptime/100);
-			}
-			returnJson($cableModemList);
-		} else {
-			echo "Operation failed";
+			$cmMacDecimal = implode(".", $cmMacHexToDec);
+	
+			$cableModemPtr = $this->read('cablemodem.index', SNMP_VALUE_PLAIN, $cmMacDecimal);	
+
+			$cableModem->ptr = $cableModemPtr;
+			$cableModem->mac = strtoupper($cableModemMac);
+			$cableModem->ip = $this->read('cablemodem.ip', SNMP_VALUE_PLAIN, $cableModemPtr);
+			$cableModem->status = $this->read('cablemodem.status', SNMP_VALUE_PLAIN, $cableModemPtr);
+			$cableModem->uptime = readableTimeticks($this->read('cablemodem.uptime', SNMP_VALUE_PLAIN, $cableModemPtr));
+			
+			$cableModems[] = $cableModem;
 		}
+		
+		returnJson($cableModems);
 	}
 }
 

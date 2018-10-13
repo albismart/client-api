@@ -15,22 +15,32 @@ Class SNMP_Driver {
 		$this->mibs = include_once snmp_path("/albismart-mib.php");
 	}
 	
-	public function read($data, $readValueMethod = SNMP_VALUE_PLAIN) {
+	public function read($data, $readValueMethod = SNMP_VALUE_PLAIN, $index = "") {
 		snmp_set_valueretrieval($readValueMethod);
 		if(is_string($data)) {
-			return snmpget($this->hostname, $this->community, $this->oid($data), $this->timeout, $this->retries);
+			if(strpos($data, '[]') === false) {
+				return snmpget($this->hostname, $this->community, $this->oid($data,$index), $this->timeout, $this->retries);
+			} else {
+				$plainObjectID = str_replace("[]","", $data);
+				$result = snmpwalk($this->hostname, $this->community, $this->oid($plainObjectID, $index), $this->timeout, $this->retries);
+				$values = array();
+				foreach($result as $r) {
+					$values[] = $r;
+				}
+				return $values;
+			}
 		}
 		if(is_array($data)) {
 			$results = array();
 			foreach($data as $objectID) {
 				if(strpos($objectID, '[]') === false) {
-					if(is_array($this->oid($objectID))) {
+					if(is_array($this->oid($objectID, $index))) {
 						echo $objectID . "<hr/>";
 					}
-					$results[$objectID] = snmpget($this->hostname, $this->community, $this->oid($objectID), $this->timeout, $this->retries);
+					$results[$objectID] = snmpget($this->hostname, $this->community, $this->oid($objectID, $index), $this->timeout, $this->retries);
 				} else {
 					$plainObjectID = str_replace("[]","", $objectID);
-					$result = snmpwalk($this->hostname, $this->community, $this->oid($plainObjectID), $this->timeout, $this->retries);
+					$result = snmpwalk($this->hostname, $this->community, $this->oid($plainObjectID, $index), $this->timeout, $this->retries);
 					$values = array();
 					foreach($result as $r) {
 						$values[] = $r;
@@ -63,30 +73,31 @@ Class SNMP_Driver {
 		}
 	}
 	
-	protected function oid($index, $lastIndex = "") {
+	protected function oid($oidIndex, $index = "") {
 		$oidArrayWalker = $this->mibs;
-		if(is_string($index)) {
-			$indexes = strpos($index, '.') !== false ? explode('.', $index) : 
-					   (strpos($index, '/') !== false ? explode('/', $index) : null);
+		if(is_string($oidIndex)) {
+			$indexes = strpos($oidIndex, '.') !== false ? explode('.', $oidIndex) : 
+					   (strpos($oidIndex, '/') !== false ? explode('/', $oidIndex) : null);
 			if($indexes) {
-				$index = $indexes;
+				$oidIndex = $indexes;
 			} else {
-				if(isset($oidArrayWalker[$index])) {
-					$oidArrayWalker = $oidArrayWalker[$index];
+				if(isset($oidArrayWalker[$oidIndex])) {
+					$oidArrayWalker = $oidArrayWalker[$oidIndex];
 				} else {
 					$oidArrayWalker = null;
 				}
 			}
 		}
-		if(is_array($index)) {
-			foreach ($index as $value) {
+		if(is_array($oidIndex)) {
+			foreach ($oidIndex as $value) {
 				if(isset($oidArrayWalker[$value])) {
 					$oidArrayWalker = $oidArrayWalker[$value];
 				}
 			}
 		}
 		if(is_string($oidArrayWalker)) {
-			$oidArrayWalker = str_replace(".{lastIndex}", $lastIndex, $oidArrayWalker);
+			$index = ($index!="") ? ".".$index : $index;
+			$oidArrayWalker = str_replace(".{index}", $index, $oidArrayWalker);
 		}
 		return $oidArrayWalker;
 	}

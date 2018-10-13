@@ -18,8 +18,6 @@ $cmtsCableModemsUrl = apiRootURL("/snmp/cmts?hostname=" . $hostname . "&action=c
 $cmtsCableModems = file_get_contents($cmtsCableModemsUrl);
 $cmtsCableModems = json_decode($cmtsCableModems);
 
-$cableModemMacKey = 'cablemodem.mac[]'; 
-
 $jsCmtsInfoUrl = "http://".$_SERVER['HTTP_HOST'] . strstr(str_replace("/index.php","",$_SERVER['REQUEST_URI']),"?",true);
 $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 
@@ -56,7 +54,7 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 					<td><span id="cmtsTemperatureIn"><?php echo $cmtsInfo->temperatureIn; ?></span> °C</td>
 					<td><span id="cmtsTemperatureOut"><?php echo $cmtsInfo->temperatureOut; ?></span> °C</td>
 					<td><span id="cmtsCountInterfaces"><?php echo $cmtsInfo->countInterfaces; ?></span></td>
-					<td><?php echo count($cmtsCableModems->{$cableModemMacKey}); ?></td>
+					<td><?php echo count($cmtsCableModems); ?></td>
 				</tr>
 				<tr id="cmtsDetails" style="display:none">
 					<td colspan="7" style="border-top: 1px solid #ccc;padding: 20px;line-height:30px">
@@ -84,14 +82,13 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 				<td colspan="4">
 					<input onkeypress="filterList('interface')" onkeyup="filterList()" onblur="filterList()" placeholder="Search ..." style="width:98%;padding:8px;border-radius:3px;border:1px solid #bbb" />
 				</td>
-				<?php $indexKey = 'interface.index[]'; $descriptionKey = 'interface.description[]'; 
-					  $adminStatusKey = 'interface.adminStatus[]'; $operationStatusKey = 'interface.operationStatus[]'; $c = 0;
-					foreach($cmtsInterfaces->{$indexKey} as $cmtsInterfaceKey => $cmtsInterface) { $c++; ?>
+				<?php $c = 0; foreach($cmtsInterfaces as $cmtsInterface) { $c++; ?>
 					<?php if($c==1) { echo '<tr>'; } ?>
-						<td class="interface <?php echo strtolower(trim(str_replace("/","-",$cmtsInterfaces->{$descriptionKey}[$cmtsInterfaceKey]))); ?>">
-							<font style="font-size:18px"> <?php echo $cmtsInterfaces->{$descriptionKey}[$cmtsInterfaceKey]; ?> </font> <br/>
-							<font style="font-size:14px"> Admin Status: <?php echo $cmtsInterfaces->{$adminStatusKey}[$cmtsInterfaceKey]; ?> </font> <br/>
-							<font style="font-size:14px"> Operation Status: <?php echo $cmtsInterfaces->{$operationStatusKey}[$cmtsInterfaceKey]; ?> </font>
+						<td class="interface <?php echo strtolower(trim(str_replace("/","-",$cmtsInterface->description))); ?>">
+							<font style="font-size:18px"> <?php echo $cmtsInterface->description; ?> </font> <br/>
+							<font style="font-size:14px"> Admin Status: <?php echo $cmtsInterface->adminStatus; ?> </font> <br/>
+							<font style="font-size:14px"> Operation Status: <?php echo $cmtsInterface->operationStatus; ?> </font> <br/>
+							<font style="font-size:14px"> Speed: <?php echo $cmtsInterface->speed; ?> </font>
 						</td>
 					<?php if($c==4) { echo '</tr>'; $c=0; } ?>
 				<?php } ?>
@@ -102,7 +99,7 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 			<thead class="header" onclick="toggleNext(this)">
 				<tr>
 					<th colspan="4" class="noselect">
-						Cable Modems (<?php echo count($cmtsCableModems->{$cableModemMacKey}); ?>)
+						Cable Modems (<?php echo count($cmtsCableModems); ?>)
 						<a href="<?php echo apiRootURL(null, true); ?>/snmp/cmts?hostname=<?php echo $hostname; ?>&action=cablemodems" title="Open new tab" target="_blank" class="new-tab-anchor"> API Request </a>
 					</th>
 				</tr>
@@ -111,21 +108,15 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 				<td colspan="4">
 					<input onkeypress="filterList('cablemodem')" onkeyup="filterList()" onblur="filterList()" placeholder="Search ..." style="width:98%;padding:8px;border-radius:3px;border:1px solid #bbb" />
 				</td>
-				<?php $macKey = 'cablemodem.mac[]'; $ipKey = 'cablemodem.ip[]'; 
-					  $statusKey = 'cablemodem.status[]'; $uptimeKey = 'cablemodem.uptime[]'; $m = 0;
-					foreach($cmtsCableModems->{$macKey} as $cmKey => $cmMac) { $m++;
-						$ip = trim(str_replace("IpAddress:", "", $cmtsCableModems->{$ipKey}[$cmKey]));
-						if($m==1) { echo '<tr>'; } ?>
-						<td class="cablemodem <?php echo strtolower(strtolower(str_replace(":","-",$cmMac))); ?>">
-							<font style="font-size:16px"><?php echo $cmMac; ?> </font> <br/>
-							<font style="font-size:16px"><?php echo $cmtsCableModems->{$ipKey}[$cmKey]; ?> </font> <br/>
-							<font style="font-size:14px"> Status: <?php echo $cmtsCableModems->{$statusKey}[$cmKey]; ?> </font> <br/>
-							<?php $uptime = $cmtsCableModems->{$uptimeKey}[$cmKey];
-								if($uptime->days) { echo $uptime->days . " days, "; }
-								if($uptime->hours) { echo $uptime->hours; }
-								if($uptime->minutes) { echo ":" . $uptime->minutes; }
-								if($uptime->seconds) { echo ":" . $uptime->seconds; }
-							?>
+				<?php $m = 0; foreach($cmtsCableModems as $cableModem) { $m++; ?>
+					<?php if($m==1) { echo '<tr>'; } ?>
+						<td class="cablemodem <?php echo strtolower(strtolower(str_replace(":","-",$cableModem->mac))); ?>">
+							<font style="font-size:16px"><?php echo $cableModem->mac; ?> </font> <br/>
+							<font style="font-size:16px"><?php echo $cableModem->ip; ?> </font> <br/>
+							<font style="font-size:14px"> Status: <?php echo $cableModem->status; ?> </font> <br/>
+							<?php $uptime = $cableModem->uptime;
+								if($cableModem->uptime->days) { echo $cableModem->uptime->days . " days, "; }
+								echo $cableModem->uptime->hours . ":" . $cableModem->uptime->minutes . ":" . $cableModem->uptime->seconds; ?>
 						</td>
 					<?php if($m==4) { echo '</tr>'; $m=0; } ?>
 				<?php } ?>
