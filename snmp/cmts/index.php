@@ -1,5 +1,5 @@
 <?php
-
+error_reporting(0);
 $basePath = realpath(dirname(__FILE__));
 $basePath = strstr($basePath, "client-api/", true) . "client-api";
 
@@ -83,7 +83,7 @@ Class Cmts extends SNMP_Driver {
 			$cableModem->mac = strtoupper($cableModemMac);
 			$cableModem->ip = $this->read('cablemodem.ip', SNMP_VALUE_PLAIN, $cableModemPtr);
 			$cableModem->status = $this->read('cablemodem.status', SNMP_VALUE_PLAIN, $cableModemPtr);
-			$cableModem->uptime = readableTimeticks($this->read('cablemodem.uptime', SNMP_VALUE_PLAIN, $cableModemPtr));
+			$cableModem->uptime = readableTimeticks($this->read('cablemodem.uptime', SNMP_VALUE_PLAIN, $cableModemPtr)/100);
 			
 			$cableModems[] = $cableModem;
 		}

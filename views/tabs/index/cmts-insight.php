@@ -7,7 +7,7 @@ $hostname = (isset($_GET['hostname'])) ? $_GET['hostname'] : null;
 $cmtsInfoUrl = apiRootURL("/snmp/cmts?hostname=" . $hostname) . "&api_key=" . config("api.key");
 $cmtsInfo = file_get_contents($cmtsInfoUrl);
 $cmtsInfo = json_decode($cmtsInfo);
-
+ 
 // CMTS Interfaces API Call example
 $cmtsInterfacesUrl = apiRootURL("/snmp/cmts?hostname=" . $hostname . "&action=interfaces") . "&api_key=" . config("api.key");
 $cmtsInterfaces = file_get_contents($cmtsInterfacesUrl);
@@ -17,6 +17,10 @@ $cmtsInterfaces = json_decode($cmtsInterfaces);
 $cmtsCableModemsUrl = apiRootURL("/snmp/cmts?hostname=" . $hostname . "&action=cablemodems") . "&api_key=" . config("api.key");
 $cmtsCableModems = file_get_contents($cmtsCableModemsUrl);
 $cmtsCableModems = json_decode($cmtsCableModems);
+
+// Modem Status String representations
+$modemStatus = array("Other", "Ranging", "Ranging Aborted", "Ranging ✔", "IP ✔", "Registration ✔", "Access Denied", "Operational", "Registered BPI ...");
+$modemStatusClass = array( 1 => "danger", 3 => "danger", 7 => "danger", 2 => "warning", 4 => "warning", 5 => "warning", 9 => "warning", 6 => "success", 8 => "success");
 
 ?>
 <div class="columns">
@@ -78,12 +82,12 @@ $cmtsCableModems = json_decode($cmtsCableModems);
 				</td>
 				<?php $c = 0; if($cmtsInterfaces && is_array($cmtsInterfaces)) { foreach($cmtsInterfaces as $cmtsInterface) { $c++; ?>
 					<?php if($c==1) { echo '<tr>'; } ?>
-						<td class="interface <?php echo strtolower(trim(str_replace("/","-",$cmtsInterface->description))); ?>">
+						<td onclick="focusInterface()" class="interface toggleOffCanvas <?php echo strtolower(trim(str_replace("/","-",$cmtsInterface->description))); ?>">
 							<font style="font-size:16px"> <?php echo $cmtsInterface->description; ?> </font>
 							<div style="margin-top:10px">
 								<span class="badge chain-border <?php echo ($cmtsInterface->adminStatus==1) ? 'success' : (($cmtsInterface->status==2) ? 'danger' : 'warning'); ?> "> Admin </span>
 								<span class="badge chain-border <?php echo ($cmtsInterface->operationStatus==1) ? 'success' : (($cmtsInterface->operationStatus==2) ? 'danger' : 'warning'); ?> "> Operation </span>
-								<span class="badge info"><?php echo formatBytes($cmtsInterface->speed/8); ?></span>
+								<span class="badge info"><?php echo formatBytes($cmtsInterface->speed); ?></span>
 							</div>
 						</td>
 					<?php if($c==4) { echo '</tr>'; $c=0; } ?>
@@ -106,13 +110,15 @@ $cmtsCableModems = json_decode($cmtsCableModems);
 				</td>
 				<?php $m = 0; if($cmtsCableModems && is_array($cmtsCableModems)) { foreach($cmtsCableModems as $cableModem) { $m++; ?>
 					<?php if($m==1) { echo '<tr>'; } ?>
-						<td class="cablemodem <?php echo strtolower(strtolower(str_replace(":","-",$cableModem->mac))); ?>">
+						<td class="cablemodem toggleOffCanvas <?php echo strtolower(strtolower(str_replace(":","-",$cableModem->mac))); ?>" onclick="focusCableModem()">
 							<font style="font-size:16px"><?php echo $cableModem->mac; ?> </font> <br/>
 							<font style="font-size:16px"><?php echo $cableModem->ip; ?> </font> <br/>
-							<font style="font-size:14px"> Status: <?php echo $cableModem->status; ?> </font> <br/>
-							<?php $uptime = $cableModem->uptime;
+							<span class="badge <?php echo $modemStatusClass[$cableModem->status]; ?> chain-border"> <?php echo $modemStatus[$cableModem->status-1]; ?> </span>
+							<span class="badge warning">
+								<?php $uptime = $cableModem->uptime;
 								if($cableModem->uptime->days) { echo $cableModem->uptime->days . " days, "; }
 								echo $cableModem->uptime->hours . ":" . $cableModem->uptime->minutes . ":" . $cableModem->uptime->seconds; ?>
+							</span>
 						</td>
 					<?php if($m==4) { echo '</tr>'; $m=0; } ?>
 				<?php } } ?>
@@ -168,5 +174,13 @@ function filterList(itemClass) {
 	} else {
 		for(var i = 0;i<items.length;i++) { items[i].style.display = "table-cell"; }
 	}
+}
+function focusInterface() {
+	console.log("Focusing interface");
+	focusOffCanvas();
+}
+
+function focusCableModem() {
+	focusOffCanvas();
 }
 </script>
