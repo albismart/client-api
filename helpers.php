@@ -129,9 +129,9 @@ Provided with the bytes the function returns a higher unit result for effortless
 function formatBytes($valueInBytes) {
     $higherUnits = array('B', 'KB', 'MB', 'GB', 'TB'); 
     $valueInBytes = max($valueInBytes, 0);
-    $pow = floor(($valueInBytes ? log($valueInBytes) : 0) / log(1024)); 
+    $pow = floor(($valueInBytes ? log($valueInBytes) : 0) / log(1000)); 
     $pow = min($pow, count($higherUnits) - 1);
-	$valueInBytes /= pow(1024, $pow);
+	$valueInBytes /= pow(1000, $pow);
     return round($valueInBytes, 2) . ' ' . $higherUnits[$pow]; 
 }
 
