@@ -22,6 +22,14 @@ return array(
 	"cdxIfUpChannelAvgUtil" => "{$cisco}.9.116.1.4.1.1.7.{index}:type=129" // docsCableUpstream(129)
 	"cdxIfUpChannelCmRegistered" => "{$cisco}.9.116.1.4.1.1.5.{index}:type=129" // docsCableUpstream(129)
 
+	//remote query 
+	"cdrqCmtsCmDownChannelPower" => "1.3.6.1.4.1.9.10.59.1.2.1.1.1" 
+	"cdrqCmtsCmStatusTxPower" => "1.3.6.1.4.1.9.10.59.1.2.1.1.2" 
+	"cdrqCmtsCmUpChnlTxTimingOffset" => "1.3.6.1.4.1.9.10.59.1.2.1.1.3" 
+	"cdrqCmtsCmSigQSignalNoise" => "1.3.6.1.4.1.9.10.59.1.2.1.1.4" 
+	"cdrqCmtsCmSigQMicroreflections" => "1.3.6.1.4.1.9.10.59.1.2.1.1.5" 
+	"cdrqCmtsCmPollTime" => "1.3.6.1.4.1.9.10.59.1.2.1.1.6" 
+
 );
 
 ?>
