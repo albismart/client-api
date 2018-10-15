@@ -4,6 +4,7 @@ $basePath = realpath(dirname(__FILE__));
 $basePath = strstr($basePath, "client-api/", true) . "client-api";
 
 include_once $basePath . "/bootstrap.php";
+validateApiRequest();
 
 // Providing some Machine Info at a glance
 $meminfo = file_exists("/proc/meminfo") ? file("/proc/meminfo") : 0;

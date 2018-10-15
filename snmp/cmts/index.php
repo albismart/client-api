@@ -5,6 +5,7 @@ $basePath = strstr($basePath, "client-api/", true) . "client-api";
 
 include_once $basePath . "/bootstrap.php";
 include_once snmp_path("/driver.php");
+validateApiRequest();
 
 Class Cmts extends SNMP_Driver {
 	public function __construct() {
