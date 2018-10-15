@@ -10,8 +10,6 @@ validateApiRequest();
 Class Cmts extends SNMP_Driver {
 	public function __construct() {
 		parent::__construct();
-		$this->hostname = (isset($_GET["hostname"])) ? $_GET["hostname"] : null;
-		$this->vendor = (isset($_GET["vendor"])) ? $_GET["vendor"] : "cisco";
 		$cmtsMIB = include_once snmp_path("/cmts/vendors/{$this->vendor}.php");
 		$this->mibs = array_merge($this->mibs, $cmtsMIB);
 	}
@@ -55,6 +53,9 @@ Class Cmts extends SNMP_Driver {
 			$interface->adminStatus = $this->read("interface.adminStatus",SNMP_VALUE_PLAIN, $interfaceIndex);
 			$interface->operationStatus = $this->read("interface.operationStatus",SNMP_VALUE_PLAIN, $interfaceIndex);
 			$interface->speed = $this->read("interface.speed",SNMP_VALUE_PLAIN, $interfaceIndex);
+			if($interface->speed==4294967295) {
+				$interface->speed = $this->read("interface.highSpeed",SNMP_VALUE_PLAIN, $interfaceIndex);
+			}
 			$interfaces[] = $interface;
 		}
 		

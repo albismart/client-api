@@ -8,6 +8,11 @@ Class SNMP_Driver {
 	protected $community, $writeCommunity, $timeout, $retries, $mibs;
 	
 	public function __construct() {
+		// Device details based on request
+		$this->hostname = (isset($_GET["hostname"])) ? $_GET["hostname"] : null;
+		$this->vendor = (isset($_GET["vendor"])) ? $_GET["vendor"] : "cisco";
+
+		// Set defaults by config
 		$this->community = config("snmp.community");
 		$this->writeCommunity = config("snmp.wcommunity") ? config("snmp.wcommunity") : $this->community;
 		$this->timeout = config("snmp.timeout", 100000);
