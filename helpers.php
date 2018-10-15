@@ -121,6 +121,44 @@ function returnJson($result) {
 	}
 }
 
+/*
+formatBytes: many OID's return limit values in bits therefore before formating in bytes you should divide them by 8.
+https://stackoverflow.com/questions/2510434/format-bytes-to-kilobytes-megabytes-gigabytes
+Provided with the bytes the function returns a higher unit result for effortless perception.
+*/
+function formatBytes($valueInBytes) {
+    $higherUnits = array('B', 'KB', 'MB', 'GB', 'TB'); 
+    $valueInBytes = max($valueInBytes, 0);
+    $pow = floor(($valueInBytes ? log($valueInBytes) : 0) / log(1024)); 
+    $pow = min($pow, count($higherUnits) - 1);
+	$valueInBytes /= pow(1024, $pow);
+    return round($valueInBytes, 2) . ' ' . $higherUnits[$pow]; 
+}
+
+/*
+invalidApiRequest: simply check if api_key param is set and validate if it matches with current config.
+*/
+function validateApiRequest() {
+	if( !isset($_GET['api_key']) && !isset($_POST['api_key']) ) {
+		header("HTTP/1.1 401 Unauthorized request");
+		exit();
+	} else {
+		$apiKey = (isset($_GET['api_key'])) ? $_GET['api_key'] : $_GET['api_key'];
+		if($apiKey!=config("api.key")) {
+			header("HTTP/1.1 401 Unauthorized request");
+			exit();
+		}
+	}
+}
+
+/*
+apiRequestAnchor: return the link to api request example.
+*/
+function apiRequestAnchor($apiPath) {
+	$apiPath .= (strpos($apiPath, "?") === false) ? "?" : "&";
+	return '<a href="'.apiRootURL($apiPath, true) . "api_key=" . config("api.key") .'" title="Open new tab" target="_blank" class="new-tab-anchor"> API Request </a>';
+}
+
 /******** PATHS ********/
 function base_path($path = null) {
 	$base_path = realpath(dirname(__FILE__));
