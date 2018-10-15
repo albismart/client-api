@@ -1,5 +1,5 @@
 <?php
-$linuxInfo = file_get_contents(apiRootURL("/info"));
+$linuxInfo = file_get_contents( apiRootURL("/info") . "?api_key=" . config("api.key") );
 $linuxInfo = json_decode($linuxInfo);
 ?>
 <div class="columns">
@@ -10,9 +10,7 @@ $linuxInfo = json_decode($linuxInfo);
 				<tr>
 					<th>Operative System</th>
 					<th>Hostname</th>
-					<th>Uptime
-						<a href="<?php echo apiRootURL(null, true); ?>/info" title="Open new tab" target="_blank" class="new-tab-anchor"> API Request </a>
-					</th>
+					<th>Uptime <?php echo apiRequestAnchor("/info"); ?> </th>
 				</tr>
 			</thead>
 			<tbody>

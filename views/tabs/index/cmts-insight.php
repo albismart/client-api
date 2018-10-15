@@ -4,22 +4,19 @@
 $hostname = (isset($_GET['hostname'])) ? $_GET['hostname'] : null;
 
 // CMTS Info API Call example
-$cmtsInfoUrl = apiRootURL("/snmp/cmts?hostname=" . $hostname);
+$cmtsInfoUrl = apiRootURL("/snmp/cmts?hostname=" . $hostname) . "&api_key=" . config("api.key");
 $cmtsInfo = file_get_contents($cmtsInfoUrl);
 $cmtsInfo = json_decode($cmtsInfo);
 
 // CMTS Interfaces API Call example
-$cmtsInterfacesUrl = apiRootURL("/snmp/cmts?hostname=" . $hostname . "&action=interfaces");
+$cmtsInterfacesUrl = apiRootURL("/snmp/cmts?hostname=" . $hostname . "&action=interfaces") . "&api_key=" . config("api.key");
 $cmtsInterfaces = file_get_contents($cmtsInterfacesUrl);
 $cmtsInterfaces = json_decode($cmtsInterfaces);
 
 // CMTS CableModems API Call example
-$cmtsCableModemsUrl = apiRootURL("/snmp/cmts?hostname=" . $hostname . "&action=cablemodems");
+$cmtsCableModemsUrl = apiRootURL("/snmp/cmts?hostname=" . $hostname . "&action=cablemodems") . "&api_key=" . config("api.key");
 $cmtsCableModems = file_get_contents($cmtsCableModemsUrl);
 $cmtsCableModems = json_decode($cmtsCableModems);
-
-$jsCmtsInfoUrl = "http://".$_SERVER['HTTP_HOST'] . strstr(str_replace("/index.php","",$_SERVER['REQUEST_URI']),"?",true);
-$jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 
 ?>
 <div class="columns">
@@ -34,10 +31,7 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 					<th>Temperature IN</th>
 					<th>Temperature Out</th>
 					<th>Total interfaces</th>
-					<th>
-						Total Cable Modems
-						<a href="<?php echo apiRootURL(null, true); ?>/snmp/cmts?hostname=<?php echo $hostname; ?>" title="Open new tab" target="_blank" class="new-tab-anchor"> API Request </a>
-					</th>
+					<th>Total Cable Modems <?php echo apiRequestAnchor("/snmp/cmts?hostname={$hostname}"); ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -74,7 +68,7 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 				<tr>
 					<th colspan="4" class="noselect">
 						Interfaces (<?php echo $cmtsInfo->countInterfaces; ?>)
-						<a href="<?php echo apiRootURL(null, true); ?>/snmp/cmts?hostname=<?php echo $hostname; ?>&action=interfaces" title="Open new tab" target="_blank" class="new-tab-anchor"> API Request </a>
+						<?php echo apiRequestAnchor("/snmp/cmts?hostname={$hostname}&action=interfaces"); ?>
 					</th>
 				</tr>
 			</thead>
@@ -82,16 +76,18 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 				<td colspan="4">
 					<input onkeypress="filterList('interface')" onkeyup="filterList()" onblur="filterList()" placeholder="Search ..." style="width:98%;padding:8px;border-radius:3px;border:1px solid #bbb" />
 				</td>
-				<?php $c = 0; foreach($cmtsInterfaces as $cmtsInterface) { $c++; ?>
+				<?php $c = 0; if($cmtsInterfaces && is_array($cmtsInterfaces)) { foreach($cmtsInterfaces as $cmtsInterface) { $c++; ?>
 					<?php if($c==1) { echo '<tr>'; } ?>
 						<td class="interface <?php echo strtolower(trim(str_replace("/","-",$cmtsInterface->description))); ?>">
-							<font style="font-size:18px"> <?php echo $cmtsInterface->description; ?> </font> <br/>
-							<font style="font-size:14px"> Admin Status: <?php echo $cmtsInterface->adminStatus; ?> </font> <br/>
-							<font style="font-size:14px"> Operation Status: <?php echo $cmtsInterface->operationStatus; ?> </font> <br/>
-							<font style="font-size:14px"> Speed: <?php echo $cmtsInterface->speed; ?> </font>
+							<font style="font-size:16px"> <?php echo $cmtsInterface->description; ?> </font>
+							<div style="margin-top:10px">
+								<span class="badge chain-border <?php echo ($cmtsInterface->adminStatus==1) ? 'success' : (($cmtsInterface->status==2) ? 'danger' : 'warning'); ?> "> Admin </span>
+								<span class="badge chain-border <?php echo ($cmtsInterface->operationStatus==1) ? 'success' : (($cmtsInterface->operationStatus==2) ? 'danger' : 'warning'); ?> "> Operation </span>
+								<span class="badge info"><?php echo formatBytes($cmtsInterface->speed/8); ?></span>
+							</div>
 						</td>
 					<?php if($c==4) { echo '</tr>'; $c=0; } ?>
-				<?php } ?>
+				<?php } } ?>
 			</tbody>
 		</table>
 	
@@ -100,7 +96,7 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 				<tr>
 					<th colspan="4" class="noselect">
 						Cable Modems (<?php echo count($cmtsCableModems); ?>)
-						<a href="<?php echo apiRootURL(null, true); ?>/snmp/cmts?hostname=<?php echo $hostname; ?>&action=cablemodems" title="Open new tab" target="_blank" class="new-tab-anchor"> API Request </a>
+						<?php echo apiRequestAnchor("/snmp/cmts?hostname={$hostname}&action=cablemodems"); ?>
 					</th>
 				</tr>
 			</thead>
@@ -108,7 +104,7 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 				<td colspan="4">
 					<input onkeypress="filterList('cablemodem')" onkeyup="filterList()" onblur="filterList()" placeholder="Search ..." style="width:98%;padding:8px;border-radius:3px;border:1px solid #bbb" />
 				</td>
-				<?php $m = 0; foreach($cmtsCableModems as $cableModem) { $m++; ?>
+				<?php $m = 0; if($cmtsCableModems && is_array($cmtsCableModems)) { foreach($cmtsCableModems as $cableModem) { $m++; ?>
 					<?php if($m==1) { echo '<tr>'; } ?>
 						<td class="cablemodem <?php echo strtolower(strtolower(str_replace(":","-",$cableModem->mac))); ?>">
 							<font style="font-size:16px"><?php echo $cableModem->mac; ?> </font> <br/>
@@ -119,12 +115,20 @@ $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname;
 								echo $cableModem->uptime->hours . ":" . $cableModem->uptime->minutes . ":" . $cableModem->uptime->seconds; ?>
 						</td>
 					<?php if($m==4) { echo '</tr>'; $m=0; } ?>
-				<?php } ?>
+				<?php } } ?>
 			</tbody>
 		</table>
 	
 	</div>
 </div>
+<?php
+
+// Real-time Cmts Info URL
+$jsCmtsInfoUrl = "http://".$_SERVER['HTTP_HOST'] . strstr(str_replace("/index.php","",$_SERVER['REQUEST_URI']),"?",true);
+$jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname . "&api_key=" . config("api.key");
+
+
+?>
 <script>
 
 var requestLoop = setInterval(function(){
