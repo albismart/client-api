@@ -20,7 +20,7 @@ Class SNMP_Driver {
 		$this->mibs = include_once snmp_path("/albismart-mib.php");
 	}
 	
-	public function read($data, $readValueMethod = SNMP_VALUE_PLAIN, $index = "") {
+	public function read($data, $index = "", $readValueMethod = SNMP_VALUE_PLAIN) {
 		snmp_set_valueretrieval($readValueMethod);
 		if(is_string($data)) {
 			if(strpos($data, '[]') === false) {
@@ -39,9 +39,6 @@ Class SNMP_Driver {
 			$results = array();
 			foreach($data as $objectID) {
 				if(strpos($objectID, '[]') === false) {
-					if(is_array($this->oid($objectID, $index))) {
-						echo $objectID . "<hr/>";
-					}
 					$results[$objectID] = snmpget($this->hostname, $this->community, $this->oid($objectID, $index), $this->timeout, $this->retries);
 				} else {
 					$plainObjectID = str_replace("[]","", $objectID);

@@ -11,7 +11,7 @@ Class Cmts extends SNMP_Driver {
 	public function __construct() {
 		parent::__construct();
 		$cmtsMIB = include_once snmp_path("/cmts/vendors/{$this->vendor}.php");
-		$this->mibs = array_merge($this->mibs, $cmtsMIB);
+		$this->mibs = $this->mibs + $cmtsMIB;
 	}
 
 	/***********************************************
@@ -44,17 +44,18 @@ Class Cmts extends SNMP_Driver {
 	public function interfaces() {
 		$interfaces = array();
 		$interfacesIndexes = $this->read('interface.index[]');
+
 		foreach($interfacesIndexes as $interfaceIndex) {
 			$interface = new stdClass;
-	
+
 			$interface->index = $interfaceIndex;
-			$interface->type = $this->read("interface.type",SNMP_VALUE_PLAIN, $interfaceIndex);
-			$interface->description = $this->read("interface.description",SNMP_VALUE_PLAIN, $interfaceIndex);
-			$interface->adminStatus = $this->read("interface.adminStatus",SNMP_VALUE_PLAIN, $interfaceIndex);
-			$interface->operationStatus = $this->read("interface.operationStatus",SNMP_VALUE_PLAIN, $interfaceIndex);
-			$interface->speed = $this->read("interface.speed",SNMP_VALUE_PLAIN, $interfaceIndex);
+			$interface->type = $this->read("interface.type", $interfaceIndex);
+			$interface->description = $this->read("interface.description", $interfaceIndex);
+			$interface->adminStatus = $this->read("interface.adminStatus", $interfaceIndex);
+			$interface->operationStatus = $this->read("interface.operationStatus", $interfaceIndex);
+			$interface->speed = $this->read("interface.speed", $interfaceIndex);
 			if($interface->speed==4294967295) {
-				$interface->speed = $this->read("interface.highSpeed",SNMP_VALUE_PLAIN, $interfaceIndex);
+				$interface->speed = $this->read("interface.highSpeed", $interfaceIndex) * 1000000;
 			}
 			$interfaces[] = $interface;
 		}
@@ -67,7 +68,7 @@ Class Cmts extends SNMP_Driver {
 	*************************************************/
 	public function cablemodems() {
 		$cableModems = array();
-		$cableModemList = $this->read('cablemodem.mac[]', SNMP_VALUE_LIBRARY);
+		$cableModemList = $this->read('cmts.cableModem.mac[]', "", SNMP_VALUE_LIBRARY);
 
 		foreach($cableModemList as $cableModemMac) {
 			$cableModem = new stdClass;
@@ -78,13 +79,13 @@ Class Cmts extends SNMP_Driver {
 			}
 			$cmMacDecimal = implode(".", $cmMacHexToDec);
 	
-			$cableModemPtr = $this->read('cablemodem.index', SNMP_VALUE_PLAIN, $cmMacDecimal);	
+			$cableModemPtr = $this->read('cmts.cableModem.index', $cmMacDecimal);	
 
 			$cableModem->ptr = $cableModemPtr;
 			$cableModem->mac = strtoupper($cableModemMac);
-			$cableModem->ip = $this->read('cablemodem.ip', SNMP_VALUE_PLAIN, $cableModemPtr);
-			$cableModem->status = $this->read('cablemodem.status', SNMP_VALUE_PLAIN, $cableModemPtr);
-			$cableModem->uptime = readableTimeticks($this->read('cablemodem.uptime', SNMP_VALUE_PLAIN, $cableModemPtr)/100);
+			$cableModem->ip = $this->read('cmts.cableModem.ip', $cableModemPtr);
+			$cableModem->status = $this->read('cmts.cableModem.status', $cableModemPtr);
+			$cableModem->uptime = readableTimeticks($this->read('cmts.cableModem.uptime', $cableModemPtr)/100);
 			
 			$cableModems[] = $cableModem;
 		}
