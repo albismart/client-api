@@ -20,37 +20,19 @@ Class SNMP_Driver {
 		$this->mibs = include_once snmp_path("/albismart-mib.php");
 	}
 	
-	public function read($data, $index = "", $readValueMethod = SNMP_VALUE_PLAIN) {
+	public function read($oid, $index = "", $readValueMethod = SNMP_VALUE_PLAIN) {
 		snmp_set_valueretrieval($readValueMethod);
-		if(is_string($data)) {
-			if(strpos($data, '[]') === false) {
-				return snmpget($this->hostname, $this->community, $this->oid($data,$index), $this->timeout, $this->retries);
-			} else {
-				$plainObjectID = str_replace("[]","", $data);
-				$result = snmpwalk($this->hostname, $this->community, $this->oid($plainObjectID, $index), $this->timeout, $this->retries);
-				$values = array();
-				foreach($result as $r) {
-					$values[] = $r;
-				}
-				return $values;
-			}
+		$oidsToRead = $this->oidTreeFinder($oid);
+
+		if(is_string($oidsToRead)) {
+			$parsed = $this->oidParser($oidsToRead, $index);
+			$rawData = call_user_func_array($parsed->snmpMethod, $parsed->snmpParams);
+			$result = ($parsed->filter) ? call_user_func($parsed->filter, $rawData) : $rawData;
+			return $result;
 		}
-		if(is_array($data)) {
-			$results = array();
-			foreach($data as $objectID) {
-				if(strpos($objectID, '[]') === false) {
-					$results[$objectID] = snmpget($this->hostname, $this->community, $this->oid($objectID, $index), $this->timeout, $this->retries);
-				} else {
-					$plainObjectID = str_replace("[]","", $objectID);
-					$result = snmpwalk($this->hostname, $this->community, $this->oid($plainObjectID, $index), $this->timeout, $this->retries);
-					$values = array();
-					foreach($result as $r) {
-						$values[] = $r;
-					}
-					$results[$objectID] = $values;
-				}
-			}
-			return $results;
+		
+		if(is_array($oidsToRead)) {
+			return $this->oidStackRead($oidsToRead, $index);
 		}
 	}
 	
@@ -75,33 +57,73 @@ Class SNMP_Driver {
 		}
 	}
 	
-	protected function oid($oidIndex, $index = "") {
-		$oidArrayWalker = $this->mibs;
-		if(is_string($oidIndex)) {
-			$indexes = strpos($oidIndex, '.') !== false ? explode('.', $oidIndex) : 
-					   (strpos($oidIndex, '/') !== false ? explode('/', $oidIndex) : null);
-			if($indexes) {
-				$oidIndex = $indexes;
-			} else {
-				if(isset($oidArrayWalker[$oidIndex])) {
-					$oidArrayWalker = $oidArrayWalker[$oidIndex];
+	protected function oidTreeFinder($oidIndex) {
+		$focusedTree = null;
+
+		$suffix = "";
+		if(strpos($oidIndex, '[]') !== false) {
+			$oidIndex = str_replace("[]", "", $oidIndex);
+			$suffix = "[]";
+		}
+		$indexes = strpos($oidIndex, '.') !== false ? explode('.', $oidIndex) : 
+				  (strpos($oidIndex, '/') !== false ? explode('/', $oidIndex) : null);
+		if($indexes) {
+			$searchMibs = $this->mibs;
+			while(count($indexes)!=0) {
+				$shiftedIndex = array_shift($indexes);
+				if(isset($searchMibs[$shiftedIndex])) {
+					$searchMibs = $searchMibs[$shiftedIndex];
 				} else {
-					$oidArrayWalker = null;
+					$indexes = array();
 				}
 			}
-		}
-		if(is_array($oidIndex)) {
-			foreach ($oidIndex as $value) {
-				if(isset($oidArrayWalker[$value])) {
-					$oidArrayWalker = $oidArrayWalker[$value];
-				}
+			$focusedTree = $searchMibs;
+			if (is_string($focusedTree)) {
+				$focusedTree = $focusedTree . $suffix;
+			}
+		} else {
+			if(isset($this->mibs[$oidIndex])) {
+				$focusedTree = $this->mibs[$oidIndex];
 			}
 		}
-		if(is_string($oidArrayWalker)) {
-			$index = ($index!="") ? ".".$index : $index;
-			$oidArrayWalker = str_replace(".{index}", $index, $oidArrayWalker);
+
+		return $focusedTree;
+	}
+
+	protected function oidStackRead($oids, $index = "") {
+		$oidsRead = array();
+		if (!is_array($oids)) { return FALSE;}
+
+		foreach ($oids as $oidKey => $oidsToRead) { 
+			if (is_array($oidsToRead)) { $oidsRead[$oidKey] = $this->oidStackRead($oidsToRead); }
+			if (is_string($oidsToRead)) {
+				$parsed = $this->oidParser($oidsToRead, $index);
+				$rawData = call_user_func_array($parsed->snmpMethod, $parsed->snmpParams);
+				$oidsRead[$oidKey] = ($parsed->filter) ? call_user_func($parsed->filter, $rawData) : $rawData;
+			}
 		}
-		return $oidArrayWalker;
+		return $oidsRead;
+	}
+	
+	protected function oidParser($oid, $index = "") {
+		$filter = (strpos($oid, ":")!==false) ? ltrim(substr($oid, strpos($oid, ":"), strlen($oid)-1),":") : null;
+
+		$oid = (strpos($oid, $filter)!==false) ? rtrim(str_replace($filter,"", $oid),":") : $oid;
+		$oid = (strpos($oid, ".{index}")!==false) ? str_replace(".{index}","", $oid) : $oid;
+		$oid = ($index!="") ? $oid . "." . $index : $oid;
+
+		$snmpMethod = "snmpget";
+		if(strpos($oid, '[]') !== false) { 
+			$snmpMethod = "snmpwalk";
+			$oid = str_replace("[]","", $oid);
+		}
+
+		$parsed = new stdClass;
+		$parsed->filter = (function_exists($filter)) ? $filter : null;
+		$parsed->snmpMethod = $snmpMethod;
+		$parsed->snmpParams = array($this->hostname, $this->community, $oid, $this->timeout, $this->retries);
+
+		return $parsed;
 	}
 
 }

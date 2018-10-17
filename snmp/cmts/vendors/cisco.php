@@ -4,9 +4,11 @@
 $cisco = "1.3.6.1.4.1.9";
 
 return array(
-	"cpuUsage" => "{$cisco}.2.1.57.0",
-	"temperatureIn" => "{$cisco}.9.13.1.3.1.3.1",
-	"temperatureOut" => "{$cisco}.9.13.1.3.1.3.2",
+	"stats" => array(
+		"cpuUsage" => "{$cisco}.2.1.57.0",
+		"temperatureIn" => "{$cisco}.9.13.1.3.1.3.1",
+		"temperatureOut" => "{$cisco}.9.13.1.3.1.3.2",
+	),
 	"interface" => array(
 		"countCableModems" => "{$cisco}.9.116.1.3.3.1.4.{index}:{dependency}=127",
 		"countActiveCableModems" => "{$cisco}.9.116.1.3.3.1.5.{index}:{dependency}=127",
@@ -21,14 +23,16 @@ return array(
 			"AverageUtilization" => "{$cisco}.9.116.1.4.1.1.7.{index}:{dependency}=129", // docsCableUpstream(129)
 		)
 	),
-	"remoteQuery" => array(
+	"cmts" => array(
 		"cableModem" => array(
-			"downstreamChannelPower" => "{$cisco}.10.59.1.2.1.1.1",
-			"txStatusPower" => "{$cisco}.10.59.1.2.1.1.2",
-			"upstreamChannelTxTimingOffset" => "{$cisco}.10.59.1.2.1.1.3",
-			"singalNoiseRatio" => "{$cisco}.10.59.1.2.1.1.4",
-			"microReflections" => "{$cisco}.10.59.1.2.1.1.5",
-			"pollTime" => "{$cisco}.10.59.1.2.1.1.6",
+			"remoteQuery" => array(
+				"downstreamChannelPower" => "{$cisco}.10.59.1.2.1.1.1",
+				"txStatusPower" => "{$cisco}.10.59.1.2.1.1.2",
+				"upstreamChannelTxTimingOffset" => "{$cisco}.10.59.1.2.1.1.3",
+				"singalNoiseRatio" => "{$cisco}.10.59.1.2.1.1.4",
+				"microReflections" => "{$cisco}.10.59.1.2.1.1.5",
+				"pollTime" => "{$cisco}.10.59.1.2.1.1.6",
+			),
 		),
 	),
 );

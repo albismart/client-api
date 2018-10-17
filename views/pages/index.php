@@ -31,8 +31,7 @@
 <script>
 function initPage() {
 	document.getElementById("offCanvas").style.height = (window.innerHeight - 71) + "px";
-	
-	
+
 }
 
 function blurOffCanvas() {
@@ -45,7 +44,6 @@ function blurOffCanvas() {
 
 
 function focusOffCanvas() {
-	console.log("Openning offcanvas");
 	document.getElementById("offCanvas").style.display = "block";
 	setTimeout( function(){ 
 		document.getElementById("offCanvasContent").style.right = "0";
@@ -61,6 +59,17 @@ function httpGetAsync(theUrl, callback) {
 	}
 	xmlHttp.open("GET", theUrl, true); // true for asynchronous 
 	xmlHttp.send(null);
+}
+
+function httpPostAsync(theUrl, data, callback) {
+	var xmlHttp = new XMLHttpRequest();
+	xmlHttp.onreadystatechange = function() { 
+		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+			callback(xmlHttp.responseText);
+	}
+	xmlHttp.open("POST", theUrl, true); // true for asynchronous 
+	xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xmlHttp.send(data);
 }
 function toggleNext() {
 	var target = window.event.target;

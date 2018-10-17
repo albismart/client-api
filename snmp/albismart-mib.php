@@ -9,21 +9,25 @@ A detailed answer on how SNMP and its MIBs and OIDs work.
 $generalTree = "1.3.6.1.2.1.1";
 
 return array(
-	"description"		=> "1.3.6.1.2.1.1.1.0",
-	"objectID"			=> "1.3.6.1.2.1.1.2.0",
-	"uptime"			=> "1.3.6.1.2.1.1.3.0",
-	"contact"			=> "1.3.6.1.2.1.1.4.0",
-	"name"				=> "1.3.6.1.2.1.1.5.0",
-	"location"			=> "1.3.6.1.2.1.1.6.0",
-	"services"			=> "1.3.6.1.2.1.1.7.0",
-	"countInterfaces"	=> "1.3.6.1.2.1.2.1.0",
+	"about" => array(
+		"description"		=> "1.3.6.1.2.1.1.1.0",
+		"objectID"			=> "1.3.6.1.2.1.1.2.0",
+		"contact"			=> "1.3.6.1.2.1.1.4.0",
+		"name"				=> "1.3.6.1.2.1.1.5.0",
+		"location"			=> "1.3.6.1.2.1.1.6.0",
+		"services"			=> "1.3.6.1.2.1.1.7.0",
+	),
+	"stats" => array(
+		"uptime"			=> "1.3.6.1.2.1.1.3.0:readableTimeticks",
+		"countInterfaces"	=> "1.3.6.1.2.1.2.1.0",
+	),
 	"interface" => array(
 		"index"					=> "1.3.6.1.2.1.2.2.1.1.{index}",
 		"description"			=> "1.3.6.1.2.1.2.2.1.2.{index}",
 		"type"					=> "1.3.6.1.2.1.2.2.1.3.{index}",
 		"mtu"					=> "1.3.6.1.2.1.2.2.1.4.{index}",
-		"speed"					=> "1.3.6.1.2.1.2.2.1.5.{index}",
-		"highSpeed"				=> "1.3.6.1.2.1.31.1.1.1.15.{index}",
+		"speed"					=> "1.3.6.1.2.1.2.2.1.5.{index}:formatBytes",
+		"highSpeed"				=> "1.3.6.1.2.1.31.1.1.1.15.{index}:formatMegs",
 		"physicalAddress"		=> "1.3.6.1.2.1.2.2.1.6.{index}",
 		"adminStatus"			=> "1.3.6.1.2.1.2.2.1.7.{index}",
 		"operationStatus"		=> "1.3.6.1.2.1.2.2.1.8.{index}",
@@ -50,7 +54,7 @@ return array(
 			"mac" 	=> "1.3.6.1.2.1.10.127.1.3.3.1.2.{index}",
 			"ip" 	=> "1.3.6.1.2.1.10.127.1.3.3.1.3.{index}",
 			"status" => "1.3.6.1.2.1.10.127.1.3.3.1.9.{index}",
-			"uptime" => "1.3.6.1.2.1.10.127.1.3.3.1.22.{index}",
+			"uptime" => "1.3.6.1.2.1.10.127.1.3.3.1.22.{index}:readableTimeticks",
 		)
 	),
 	"docsis" => array(
@@ -80,11 +84,11 @@ return array(
 			"description"		=> "1.3.6.1.2.1.69.1.5.8.1.7",
 		),
 		"interface" => array(
-			"totalCodeWords" 			=> "1.3.6.1.2.1.10.127.1.1.4.1.8.{index}:interface.type=129", // docsCableUpstream(129)
-			"correctedCodeWords" 		=> "1.3.6.1.2.1.10.127.1.1.4.1.9.{index}:interface.type=129", // docsCableUpstream(129)
-			"uncorrectedCodeWorks" 		=> "1.3.6.1.2.1.10.127.1.1.4.1.10.{index}:interface.type=129", // docsCableUpstream(129)
-			"snr" 						=> "1.3.6.1.2.1.10.127.1.1.4.1.5.{index}:interface.type=129", // docsCableUpstream(129)
-			"mr" 						=> "1.3.6.1.2.1.10.127.1.1.4.1.6.{index}:interface.type=129", // docsCableUpstream(129)
+			"totalCodeWords" 			=> "1.3.6.1.2.1.10.127.1.1.4.1.8.{index}:{dependency}=129", // docsCableUpstream(129)
+			"correctedCodeWords" 		=> "1.3.6.1.2.1.10.127.1.1.4.1.9.{index}:{dependency}=129", // docsCableUpstream(129)
+			"uncorrectedCodeWorks" 		=> "1.3.6.1.2.1.10.127.1.1.4.1.10.{index}:{dependency}=129", // docsCableUpstream(129)
+			"snr" 						=> "1.3.6.1.2.1.10.127.1.1.4.1.5.{index}:{dependency}=129", // docsCableUpstream(129)
+			"mr" 						=> "1.3.6.1.2.1.10.127.1.1.4.1.6.{index}:{dependency}=129", // docsCableUpstream(129)
 			//"sigQUnerroreds" 			=> "1.3.6.1.2.1.10.127.1.1.4.1.2.{index}:interface.type=129" // docsCableUpstream(129)
 			"upstreamChannel" => array(
 				"index"					=> "1.3.6.1.2.1.10.127.1.1.2.1.1",

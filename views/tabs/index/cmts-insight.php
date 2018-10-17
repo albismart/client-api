@@ -41,26 +41,26 @@ $modemStatusClass = array( 1 => "danger", 3 => "danger", 7 => "danger", 2 => "wa
 			<tbody>
 				<tr>
 					<td>
-						<button type="button" onclick="toggleCmtsDetails()" id="cmtsDetailsToggler" style="padding:5px 10px;background: #fff;border:1px solid #ddd;cursor:pointer">▼</button>
-						<?php echo $cmtsInfo->name; ?>
+						<?php echo $cmtsInfo->about->name; ?>
 					</td>
 					<td><span id="cmtsUptime"><?php
-						if($cmtsInfo->uptime->days) { echo $cmtsInfo->uptime->days . " days, "; }
-						echo $cmtsInfo->uptime->hours . ":" . $cmtsInfo->uptime->minutes . ":" . $cmtsInfo->uptime->seconds;
+						if($cmtsInfo->stats->uptime->days) { echo $cmtsInfo->stats->uptime->days . " days, "; }
+						echo $cmtsInfo->stats->uptime->hours . ":" . $cmtsInfo->stats->uptime->minutes . ":" . $cmtsInfo->stats->uptime->seconds;
 					?></span></td>
-					<td><span id="cmtsCpuUsage"><?php echo $cmtsInfo->cpuUsage; ?></span>%</td>
-					<td><span id="cmtsTemperatureIn"><?php echo $cmtsInfo->temperatureIn; ?></span> °C</td>
-					<td><span id="cmtsTemperatureOut"><?php echo $cmtsInfo->temperatureOut; ?></span> °C</td>
-					<td><span id="cmtsCountInterfaces"><?php echo $cmtsInfo->countInterfaces; ?></span></td>
+					<td><span id="cmtsCpuUsage"><?php echo $cmtsInfo->stats->cpuUsage; ?></span>%</td>
+					<td><span id="cmtsTemperatureIn"><?php echo $cmtsInfo->stats->temperatureIn; ?></span> °C</td>
+					<td><span id="cmtsTemperatureOut"><?php echo $cmtsInfo->stats->temperatureOut; ?></span> °C</td>
+					<td><span id="cmtsCountInterfaces"><?php echo $cmtsInfo->stats->countInterfaces; ?></span></td>
 					<td><?php echo count($cmtsCableModems); ?></td>
 				</tr>
+				<tr> <td colspan="7"> <button type="button" onclick="toggleCmtsDetails()" id="cmtsDetailsToggler" style="padding:5px 10px;background: #fff;border:1px solid #ddd;cursor:pointer">▼</button> </td> </tr>
 				<tr id="cmtsDetails" style="display:none">
 					<td colspan="7" style="border-top: 1px solid #ccc;padding: 20px;line-height:30px">
 						<?php
-							echo str_replace(",","<br/>",$cmtsInfo->description) . "<hr/>";
-							if($cmtsInfo->objectID) { echo $cmtsInfo->objectID . "<hr/>"; }
-							if($cmtsInfo->contact) { echo $cmtsInfo->contact . "<hr/>"; }
-							if($cmtsInfo->location) { echo $cmtsInfo->location; }
+							echo str_replace(",","<br/>",$cmtsInfo->about->description) . "<hr/>";
+							if($cmtsInfo->about->objectID) { echo $cmtsInfo->about->objectID . "<hr/>"; }
+							if($cmtsInfo->about->contact) { echo $cmtsInfo->about->contact . "<hr/>"; }
+							if($cmtsInfo->about->location) { echo $cmtsInfo->about->location; }
 						?>
 					</td>
 				</tr>
@@ -71,7 +71,7 @@ $modemStatusClass = array( 1 => "danger", 3 => "danger", 7 => "danger", 2 => "wa
 			<thead class="header" onclick="toggleNext(this)">
 				<tr>
 					<th colspan="4" class="noselect">
-						Interfaces (<?php echo $cmtsInfo->countInterfaces; ?>)
+						Interfaces (<?php echo $cmtsInfo->stats->countInterfaces; ?>)
 						<?php echo apiRequestAnchor("/snmp/cmts?hostname={$hostname}&action=interfaces"); ?>
 					</th>
 				</tr>
@@ -82,12 +82,12 @@ $modemStatusClass = array( 1 => "danger", 3 => "danger", 7 => "danger", 2 => "wa
 				</td>
 				<?php $c = 0; if($cmtsInterfaces && is_array($cmtsInterfaces)) { foreach($cmtsInterfaces as $cmtsInterface) { $c++; ?>
 					<?php if($c==1) { echo '<tr>'; } ?>
-						<td onclick="focusInterface()" class="interface toggleOffCanvas <?php echo strtolower(trim(str_replace("/","-",$cmtsInterface->description))); ?>">
+						<td onclick="focusInterface('<?php echo $cmtsInterface->index; ?>')" class="interface toggleOffCanvas <?php echo strtolower(trim(str_replace("/","-",$cmtsInterface->description))); ?>">
 							<font style="font-size:16px"> <?php echo $cmtsInterface->description; ?> </font>
 							<div style="margin-top:10px">
 								<span class="badge chain-border <?php echo ($cmtsInterface->adminStatus==1) ? 'success' : (($cmtsInterface->status==2) ? 'danger' : 'warning'); ?> "> Admin </span>
 								<span class="badge chain-border <?php echo ($cmtsInterface->operationStatus==1) ? 'success' : (($cmtsInterface->operationStatus==2) ? 'danger' : 'warning'); ?> "> Operation </span>
-								<span class="badge info"><?php echo formatBytes($cmtsInterface->speed); ?></span>
+								<span class="badge info"><?php echo $cmtsInterface->speed; ?></span>
 							</div>
 						</td>
 					<?php if($c==4) { echo '</tr>'; $c=0; } ?>
@@ -133,11 +133,14 @@ $modemStatusClass = array( 1 => "danger", 3 => "danger", 7 => "danger", 2 => "wa
 $jsCmtsInfoUrl = "http://".$_SERVER['HTTP_HOST'] . strstr(str_replace("/index.php","",$_SERVER['REQUEST_URI']),"?",true);
 $jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname . "&api_key=" . config("api.key");
 
+// Real-time Cmts Custom Read URL
+$jsCmtsInterfaceInsightUrl = "http://".$_SERVER['HTTP_HOST'] . strstr(str_replace("/index.php","",$_SERVER['REQUEST_URI']),"?",true);
+$jsCmtsInterfaceInsightUrl.= "snmp/cmts/?hostname=" . $hostname . "&action=interfaceinsight&api_key=" . config("api.key");
 
 ?>
 <script>
-
-var requestLoop = setInterval(function(){
+/*
+var cmtsInfoRealTime = setInterval(function(){
 	httpGetAsync("<?php echo $jsCmtsInfoUrl; ?>", function(response) {
 		var data = JSON.parse(response);
 		var uptime = "";
@@ -153,6 +156,7 @@ var requestLoop = setInterval(function(){
 		document.getElementById("cmtsCountInterfaces").innerHTML = data.countInterfaces;
 	});
 }, 1000);
+*/
 function toggleCmtsDetails() {
 	if(document.getElementById("cmtsDetails").style.display == "none") {
 		document.getElementById("cmtsDetails").style.display = "table-row";
@@ -175,9 +179,25 @@ function filterList(itemClass) {
 		for(var i = 0;i<items.length;i++) { items[i].style.display = "table-cell"; }
 	}
 }
-function focusInterface() {
-	console.log("Focusing interface");
+function focusInterface(index) {
 	focusOffCanvas();
+	
+	var cmtsInfoRealTime = setInterval(function(){
+		var data = "index=" + index + "&oid[]=interface.description&oid[]=interface.type&oid[]=interface.mtu&oid[]=interface.speed&oid[]=adminStatus";
+		
+		httpGetAsync("<?php echo $jsCmtsInterfaceInsightUrl; ?>&index="+index, data, function(response) {
+			var data = JSON.parse(response);
+			console.log(data);
+			//var uptime = "";
+			//if(data.uptime.days) { uptime = uptime + data.uptime.days + " days, "; }
+			//if(data.uptime.hours) { uptime = uptime + data.uptime.hours + ":"; }
+			//if(data.uptime.minutes) { uptime = uptime + data.uptime.minutes + ":"; }
+			//if(data.uptime.seconds) { uptime = uptime + data.uptime.seconds; }
+
+
+		});
+	}, 10000);
+
 }
 
 function focusCableModem() {

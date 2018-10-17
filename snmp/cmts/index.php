@@ -1,5 +1,5 @@
 <?php
-error_reporting(0);
+error_reporting(E_ALL);
 $basePath = realpath(dirname(__FILE__));
 $basePath = strstr($basePath, "client-api/", true) . "client-api";
 
@@ -11,38 +11,26 @@ Class Cmts extends SNMP_Driver {
 	public function __construct() {
 		parent::__construct();
 		$cmtsMIB = include_once snmp_path("/cmts/vendors/{$this->vendor}.php");
-		$this->mibs = $this->mibs + $cmtsMIB;
+		$this->mibs = array_merge_recursive_ex($this->mibs, $cmtsMIB);
 	}
 
 	/***********************************************
 	*	linuxIP/snmp/cmts/?hostname={hostname}
 	*************************************************/
 	public function info() {
-		$infoStats = $this->read(array(
-			'name', 
-			'description', 
-			'objectID', 
-			'contact', 
-			'location', 
-			'uptime', 
-			'cpuUsage',
-			'temperatureIn',
-			'temperatureOut',
-			'countInterfaces'
-		));
-		if($infoStats) {
-			$infoStats['uptime'] = readableTimeticks($infoStats['uptime']/100);
-			returnJson($infoStats);
-		} else {
-			echo "Operation failed";
-		}
+		$cmtsInfo = array(
+			"about" => $this->read("about"),
+			"stats" => $this->read("stats"),
+		);
+
+		returnJson($cmtsInfo);
 	}
 	
 	/***********************************************
 	*	linuxIP/snmp/cmts/?hostname={hostname}&action=interfaces
 	*************************************************/
 	public function interfaces() {
-		$interfaces = array();
+		$interfaces = array();		
 		$interfacesIndexes = $this->read('interface.index[]');
 
 		foreach($interfacesIndexes as $interfaceIndex) {
@@ -54,8 +42,8 @@ Class Cmts extends SNMP_Driver {
 			$interface->adminStatus = $this->read("interface.adminStatus", $interfaceIndex);
 			$interface->operationStatus = $this->read("interface.operationStatus", $interfaceIndex);
 			$interface->speed = $this->read("interface.speed", $interfaceIndex);
-			if($interface->speed==4294967295) {
-				$interface->speed = $this->read("interface.highSpeed", $interfaceIndex) * 1000000;
+			if($interface->speed=="4.29 GB") {
+				$interface->speed = $this->read("interface.highSpeed", $interfaceIndex);
 			}
 			$interfaces[] = $interface;
 		}
@@ -85,13 +73,33 @@ Class Cmts extends SNMP_Driver {
 			$cableModem->mac = strtoupper($cableModemMac);
 			$cableModem->ip = $this->read('cmts.cableModem.ip', $cableModemPtr);
 			$cableModem->status = $this->read('cmts.cableModem.status', $cableModemPtr);
-			$cableModem->uptime = readableTimeticks($this->read('cmts.cableModem.uptime', $cableModemPtr)/100);
+			$cableModem->uptime = $this->read('cmts.cableModem.uptime', $cableModemPtr);
 			
 			$cableModems[] = $cableModem;
 		}
 		
 		returnJson($cableModems);
 	}
+
+	/***********************************************
+	*	linuxIP/snmp/cmts/?hostname={hostname}&action=interfaceinsight&index=[interfaceID]
+	*************************************************/
+	public function interfaceinsight() {
+		$index = $_GET['index'];
+		$oidRes = $this->oid("interface");
+
+	}
+
+	/***********************************************
+	*	linuxIP/snmp/cmts/?hostname={hostname}&action=customread
+	*************************************************/
+	public function customread() {
+		if(!isset($_POST)) { returnJson(); }
+		$results = $this->read($_POST);
+		returnJson($results);
+
+	}
+	
 }
 
 $action = (isset($_GET["action"])) ? $_GET["action"] : "info";
