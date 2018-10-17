@@ -79,6 +79,8 @@ Gets the uptime counted in milliseconds and then returns formatted array.
 function readableTimeticks($timeticks = null) {
 	if($timeticks==null) {
 		$timeticks = @file_get_contents('/proc/uptime');
+	} else {
+		$timeticks = $timeticks / 1000;
 	}
 	$totalTime = floatval($timeticks);
 	$seconds = floor(fmod($totalTime, 60)); $totalTime = (int)($totalTime / 60); if($seconds<10) { $seconds = "0{$seconds}"; }
@@ -133,6 +135,32 @@ function formatBytes($valueInBytes) {
     $pow = min($pow, count($higherUnits) - 1);
 	$valueInBytes /= pow(1000, $pow);
     return round($valueInBytes, 2) . ' ' . $higherUnits[$pow]; 
+}
+
+/*
+formatMegs: alias helper for formatBytes converting Megs to Bytes then to higher units.
+*/
+function formatMegs($valueInMegs) {
+	$valueInBytes = $valueInMegs * 1000000;
+	return formatBytes($valueInBytes);
+}
+
+/*
+array_merge_recursive_ex: merges recursively 2 arrays returning the merge in the end.
+https://stackoverflow.com/a/25712428/905650
+*/
+function array_merge_recursive_ex(array & $array1, array & $array2) {
+    $merged = $array1;
+    foreach ($array2 as $key => & $value) {
+        if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
+            $merged[$key] = array_merge_recursive_ex($merged[$key], $value);
+        } else if (is_numeric($key)) {
+			if (!in_array($value, $merged)) { $merged[] = $value; }
+        } else {
+			$merged[$key] = $value;
+		}
+    }
+    return $merged;
 }
 
 /*
