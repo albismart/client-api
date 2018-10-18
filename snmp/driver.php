@@ -3,10 +3,10 @@
 if(!function_exists('base_path')) { exit(); }
 
 Class SNMP_Driver {
-	
+
 	public $hostname, $vendor;
 	protected $community, $writeCommunity, $timeout, $retries, $mibs;
-	
+
 	public function __construct() {
 		// Device details based on request
 		$this->hostname = (isset($_GET["hostname"])) ? $_GET["hostname"] : null;
@@ -20,12 +20,17 @@ Class SNMP_Driver {
 		$this->mibs = include_once snmp_path("/albismart-mib.php");
 	}
 
+	public function mibs() {
+		returnJson($this->mibs);
+	}
+
 	public function customread() {
-		if(!isset($_POST)) { returnJson(); }
-		$index = (isset($_POST['index'])) ? $_POST['index'] : "";
-		$readMethod = (isset($_POST['method'])) ? $_POST['method'] : SNMP_VALUE_PLAIN;
-		$oidsToRead = (isset($_POST['oid'])) ? $_POST['oid'] : null;
-		
+		if(!isset($_GET['oid'])) { returnJson(); }
+
+		$index 		= (isset($_GET['index']))	? $_GET['index']  : "";
+		$readMethod = (isset($_GET['method']))	? $_GET['method'] : SNMP_VALUE_PLAIN;
+		$oidsToRead = (isset($_GET['oid']))		? $_GET['oid']	  : null;
+
 		if($oidsToRead) {
 			if(is_string($oidsToRead)) {
 				$results = $this->read($oidsToRead, $index, $readMethod);
@@ -36,27 +41,25 @@ Class SNMP_Driver {
 					$results[$oidToRead] = $this->read($oidToRead, $index, $readMethod);
 				}
 			}
-			
+
 			returnJson($results);
 		}
 	}
-	
+
 	public function read($oid, $index = "", $readValueMethod = SNMP_VALUE_PLAIN) {
 		snmp_set_valueretrieval($readValueMethod);
 		$oidsToRead = $this->oidTreeFinder($oid);
-
 		if(is_string($oidsToRead)) {
 			$parsed = $this->oidParser($oidsToRead, $index);
 			$rawData = call_user_func_array($parsed->snmpMethod, $parsed->snmpParams);
 			$result = ($parsed->filter) ? call_user_func($parsed->filter, $rawData) : $rawData;
 			return $result;
 		}
-		
 		if(is_array($oidsToRead)) {
 			return $this->oidStackRead($oidsToRead, $index);
 		}
 	}
-	
+
 	public function write($data) {
 		if(is_string($data)) {
 			// String Data pattern: {ObjectID}:{DataType}={UpdateValue}
@@ -77,7 +80,7 @@ Class SNMP_Driver {
 			return $bulkWritesResults;
 		}
 	}
-	
+
 	protected function oidTreeFinder($oidIndex) {
 		$focusedTree = null;
 
@@ -125,7 +128,7 @@ Class SNMP_Driver {
 		}
 		return $oidsRead;
 	}
-	
+
 	protected function oidParser($oid, $index = "") {
 		$filter = (strpos($oid, ":")!==false) ? ltrim(substr($oid, strpos($oid, ":"), strlen($oid)-1),":") : null;
 
@@ -148,3 +151,5 @@ Class SNMP_Driver {
 	}
 
 }
+
+?>
