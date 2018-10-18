@@ -30,7 +30,7 @@ After doing get the files inside your `/var/www/html/` dir or your public apache
 
 ### Our initial todo list (we may extend or eleminate items, depending on the project flow)
 
-- [x] Linux info 
+- [x] Server info
 - [ ] DHCPv2/3 Fixes 
 - [ ] DHCP Provisioning Management API
 - [ ] OMSHELL API
