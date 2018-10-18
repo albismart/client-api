@@ -1,4 +1,4 @@
-<?php if(!function_exists('base_path')) { die("Unauthorized!"); } ?><html>
+<?php if(!function_exists('base_path')) { header("HTTP/1.1 404 Not found"); exit(); } ?><html>
 <head>
 	<title>Setup — AlbiSmart - ClientAPI</title>
 	<link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">

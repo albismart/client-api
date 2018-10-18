@@ -1,4 +1,5 @@
 <?php
+if(!function_exists('base_path')) { header("HTTP/1.1 404 Not found"); exit(); }
 $linuxInfo = file_get_contents( apiRootURL("/info") . "?api_key=" . config("api.key") );
 $linuxInfo = json_decode($linuxInfo);
 ?>

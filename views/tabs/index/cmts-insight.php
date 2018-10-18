@@ -1,5 +1,7 @@
 <?php
 
+if(!function_exists('base_path')) { header("HTTP/1.1 404 Not found"); exit(); }
+
 // CMTS Hostname from previous form
 $hostname = (isset($_GET['hostname'])) ? $_GET['hostname'] : null;
 

@@ -1,3 +1,4 @@
+<?php if(!function_exists('base_path')) { header("HTTP/1.1 404 Not found"); exit(); } ?>
 <div class="columns">
 	<div class="col-2">&nbsp;</div>
 	<div class="col-8">

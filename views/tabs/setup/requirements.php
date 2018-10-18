@@ -1,4 +1,4 @@
-<?php if(!function_exists('base_path')) { die("Unauthorized!"); } ?>
+<?php if(!function_exists('base_path')) { header("HTTP/1.1 404 Not found"); exit(); } ?>
 <div class="column col-6">
 	<div class="card">
 		<div class="card-body">
