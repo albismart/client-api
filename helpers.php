@@ -1,6 +1,5 @@
 <?php
 
-
 /* 
 isValidIPAddress: validates if a given IP address matches with the correspondent patterns of the regular IP addresses.
 If the third parameter is passed as `true` the validation will run its course through IPV6 validation.
@@ -90,7 +89,6 @@ function readableTimeticks($timeticks = null) {
 	return array("days" => $days, "hours" => $hours, "minutes" => $minutes, "seconds" => $seconds);
 }
 
-
 /*
 apiRootURL: returns the root URL of the api located on this server.
 http://php.net/manual/en/reserved.variables.server.php
@@ -121,6 +119,7 @@ function returnJson($result) {
 		echo "The result was malformed.";
 		var_dump($result);
 	}
+	exit();
 }
 
 /*
@@ -138,9 +137,17 @@ function formatBytes($valueInBytes) {
 }
 
 /*
-formatMegs: alias helper for formatBytes converting Megs to Bytes then to higher units.
+formatKiloBytes: alias helper for formatBytes converting KiloBytes to Bytes then to higher units.
 */
-function formatMegs($valueInMegs) {
+function formatKiloBytes($valueInMegs) {
+	$valueInBytes = $valueInMegs * 1000;
+	return formatBytes($valueInBytes);
+}
+
+/*
+formatMegaBytes: alias helper for formatBytes converting Megs to Bytes then to higher units.
+*/
+function formatMegaBytes($valueInMegs) {
 	$valueInBytes = $valueInMegs * 1000000;
 	return formatBytes($valueInBytes);
 }
@@ -164,7 +171,7 @@ function array_merge_recursive_ex(array & $array1, array & $array2) {
 }
 
 /*
-invalidApiRequest: simply check if api_key param is set and validate if it matches with current config.
+validateApiRequest: simply check if api_key param is set and validate if it matches with current config.
 */
 function validateApiRequest() {
 	if( !isset($_GET['api_key']) && !isset($_POST['api_key']) ) {
@@ -185,6 +192,17 @@ apiRequestAnchor: return the link to api request example.
 function apiRequestAnchor($apiPath) {
 	$apiPath .= (strpos($apiPath, "?") === false) ? "?" : "&";
 	return '<a href="'.apiRootURL($apiPath, true) . "api_key=" . config("api.key") .'" title="Open new tab" target="_blank" class="new-tab-anchor"> API Request </a>';
+}
+
+/*
+mapNetworkInfo: parsing network info via ifconfig.
+*/
+function mapNetworkInfo($networkInfo, $info) {
+	$map = array('address'=>'inet addr:', 'subnet'=>'Mask:', 'gateway'=>'Bcast:');
+	$result = explode($map[$info], $networkInfo); 
+	$result = explode(" ", array_pop($result));
+	$result = array_shift($result);
+	return trim($result);
 }
 
 /******** PATHS ********/
