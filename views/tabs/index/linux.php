@@ -15,11 +15,11 @@ $linuxInfo = json_decode($linuxInfo);
 			</thead>
 			<tbody>
 				<tr>
-					<td><?php echo $linuxInfo->os; ?></td>
-					<td><?php echo $linuxInfo->hostname; ?></td>
+					<td><?php echo $linuxInfo->about->os; ?></td>
+					<td><?php echo $linuxInfo->about->hostname; ?></td>
 					<td>
-						<?php if($linuxInfo->uptime->days) { echo $linuxInfo->uptime->days . " days, "; }
-							  echo $linuxInfo->uptime->hours . ":" . $linuxInfo->uptime->minutes . ":" . $linuxInfo->uptime->seconds; ?>
+						<?php if($linuxInfo->stats->uptime->days) { echo $linuxInfo->stats->uptime->days . " days, "; }
+							  echo $linuxInfo->stats->uptime->hours . ":" . $linuxInfo->stats->uptime->minutes . ":" . $linuxInfo->stats->uptime->seconds; ?>
 					</td>
 				</tr>
 			</tbody>

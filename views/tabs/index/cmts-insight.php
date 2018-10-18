@@ -129,10 +129,6 @@ $modemStatusClass = array( 1 => "danger", 3 => "danger", 7 => "danger", 2 => "wa
 </div>
 <?php
 
-// Real-time Cmts Info URL
-$jsCmtsInfoUrl = "http://".$_SERVER['HTTP_HOST'] . strstr(str_replace("/index.php","",$_SERVER['REQUEST_URI']),"?",true);
-$jsCmtsInfoUrl.= "snmp/cmts/?hostname=" . $hostname . "&action=customread&api_key=" . config("api.key");
-
 // Real-time Cmts Custom Read URL
 $jsCmtsCustomReadUrl = "http://".$_SERVER['HTTP_HOST'] . strstr(str_replace("/index.php","",$_SERVER['REQUEST_URI']),"?",true);
 $jsCmtsCustomReadUrl.= "snmp/cmts/?hostname=" . $hostname . "&action=customread&api_key=" . config("api.key");
@@ -140,7 +136,7 @@ $jsCmtsCustomReadUrl.= "snmp/cmts/?hostname=" . $hostname . "&action=customread&
 ?>
 <script>
 var cmtsInfoRealTime = setInterval(function(){
-	httpPostAsync("<?php echo $jsCmtsInfoUrl; ?>", "oid=stats", function(response) {
+	httpPostAsync("<?php echo $jsCmtsCustomReadUrl; ?>", "oid=stats", function(response) {
 		var stats = JSON.parse(response);
 		var uptime = "";
 		if(stats.uptime.days) { uptime = uptime + stats.uptime.days + " days, "; }
