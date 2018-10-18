@@ -80,7 +80,7 @@ function readableTimeticks($timeticks = null) {
 	if($timeticks==null) {
 		$timeticks = @file_get_contents('/proc/uptime');
 	} else {
-		$timeticks = $timeticks / 1000;
+		$timeticks = $timeticks / 100;
 	}
 	$totalTime = floatval($timeticks);
 	$seconds = floor(fmod($totalTime, 60)); $totalTime = (int)($totalTime / 60); if($seconds<10) { $seconds = "0{$seconds}"; }

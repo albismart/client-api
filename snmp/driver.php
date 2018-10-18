@@ -19,6 +19,27 @@ Class SNMP_Driver {
 		$this->retries = config("snmp.retries", 2);
 		$this->mibs = include_once snmp_path("/albismart-mib.php");
 	}
+
+	public function customread() {
+		if(!isset($_POST)) { returnJson(); }
+		$index = (isset($_POST['index'])) ? $_POST['index'] : "";
+		$readMethod = (isset($_POST['method'])) ? $_POST['method'] : SNMP_VALUE_PLAIN;
+		$oidsToRead = (isset($_POST['oid'])) ? $_POST['oid'] : null;
+		
+		if($oidsToRead) {
+			if(is_string($oidsToRead)) {
+				$results = $this->read($oidsToRead, $index, $readMethod);
+			}
+			if(is_array($oidsToRead)) {
+				$results = array();
+				foreach($oidsToRead as $oidToRead) {
+					$results[$oidToRead] = $this->read($oidToRead, $index, $readMethod);
+				}
+			}
+			
+			returnJson($results);
+		}
+	}
 	
 	public function read($oid, $index = "", $readValueMethod = SNMP_VALUE_PLAIN) {
 		snmp_set_valueretrieval($readValueMethod);

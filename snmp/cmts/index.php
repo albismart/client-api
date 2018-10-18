@@ -1,5 +1,5 @@
 <?php
-error_reporting(E_ALL);
+error_reporting(0);
 $basePath = realpath(dirname(__FILE__));
 $basePath = strstr($basePath, "client-api/", true) . "client-api";
 
@@ -79,27 +79,7 @@ Class Cmts extends SNMP_Driver {
 		}
 		
 		returnJson($cableModems);
-	}
-
-	/***********************************************
-	*	linuxIP/snmp/cmts/?hostname={hostname}&action=interfaceinsight&index=[interfaceID]
-	*************************************************/
-	public function interfaceinsight() {
-		$index = $_GET['index'];
-		$oidRes = $this->oid("interface");
-
-	}
-
-	/***********************************************
-	*	linuxIP/snmp/cmts/?hostname={hostname}&action=customread
-	*************************************************/
-	public function customread() {
-		if(!isset($_POST)) { returnJson(); }
-		$results = $this->read($_POST);
-		returnJson($results);
-
-	}
-	
+	}	
 }
 
 $action = (isset($_GET["action"])) ? $_GET["action"] : "info";

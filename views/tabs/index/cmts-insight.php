@@ -85,8 +85,8 @@ $modemStatusClass = array( 1 => "danger", 3 => "danger", 7 => "danger", 2 => "wa
 						<td onclick="focusInterface('<?php echo $cmtsInterface->index; ?>')" class="interface toggleOffCanvas <?php echo strtolower(trim(str_replace("/","-",$cmtsInterface->description))); ?>">
 							<font style="font-size:16px"> <?php echo $cmtsInterface->description; ?> </font>
 							<div style="margin-top:10px">
-								<span class="badge chain-border <?php echo ($cmtsInterface->adminStatus==1) ? 'success' : (($cmtsInterface->status==2) ? 'danger' : 'warning'); ?> "> Admin </span>
-								<span class="badge chain-border <?php echo ($cmtsInterface->operationStatus==1) ? 'success' : (($cmtsInterface->operationStatus==2) ? 'danger' : 'warning'); ?> "> Operation </span>
+								<span class="badge chain-border <?php echo (isset($cmtsInterface->adminStatus) && $cmtsInterface->adminStatus==1) ? 'success' : (($cmtsInterface->status==2) ? 'danger' : 'warning'); ?> "> Admin </span>
+								<span class="badge chain-border <?php echo (isset($cmtsInterface->operationStatus) && $cmtsInterface->operationStatus==1) ? 'success' : (($cmtsInterface->operationStatus==2) ? 'danger' : 'warning'); ?> "> Operation </span>
 								<span class="badge info"><?php echo $cmtsInterface->speed; ?></span>
 							</div>
 						</td>
@@ -131,32 +131,30 @@ $modemStatusClass = array( 1 => "danger", 3 => "danger", 7 => "danger", 2 => "wa
 
 // Real-time Cmts Info URL
 $jsCmtsInfoUrl = "http://".$_SERVER['HTTP_HOST'] . strstr(str_replace("/index.php","",$_SERVER['REQUEST_URI']),"?",true);
-$jsCmtsInfoUrl.= "snmp/cmts?hostname=" . $hostname . "&api_key=" . config("api.key");
+$jsCmtsInfoUrl.= "snmp/cmts/?hostname=" . $hostname . "&action=customread&api_key=" . config("api.key");
 
 // Real-time Cmts Custom Read URL
-$jsCmtsInterfaceInsightUrl = "http://".$_SERVER['HTTP_HOST'] . strstr(str_replace("/index.php","",$_SERVER['REQUEST_URI']),"?",true);
-$jsCmtsInterfaceInsightUrl.= "snmp/cmts/?hostname=" . $hostname . "&action=interfaceinsight&api_key=" . config("api.key");
+$jsCmtsCustomReadUrl = "http://".$_SERVER['HTTP_HOST'] . strstr(str_replace("/index.php","",$_SERVER['REQUEST_URI']),"?",true);
+$jsCmtsCustomReadUrl.= "snmp/cmts/?hostname=" . $hostname . "&action=customread&api_key=" . config("api.key");
 
 ?>
 <script>
-/*
 var cmtsInfoRealTime = setInterval(function(){
-	httpGetAsync("<?php echo $jsCmtsInfoUrl; ?>", function(response) {
-		var data = JSON.parse(response);
+	httpPostAsync("<?php echo $jsCmtsInfoUrl; ?>", "oid=stats", function(response) {
+		var stats = JSON.parse(response);
 		var uptime = "";
-		if(data.uptime.days) { uptime = uptime + data.uptime.days + " days, "; }
-		if(data.uptime.hours) { uptime = uptime + data.uptime.hours + ":"; }
-		if(data.uptime.minutes) { uptime = uptime + data.uptime.minutes + ":"; }
-		if(data.uptime.seconds) { uptime = uptime + data.uptime.seconds; }
+		if(stats.uptime.days) { uptime = uptime + stats.uptime.days + " days, "; }
+		if(stats.uptime.hours) { uptime = uptime + stats.uptime.hours + ":"; }
+		if(stats.uptime.minutes) { uptime = uptime + stats.uptime.minutes + ":"; }
+		if(stats.uptime.seconds) { uptime = uptime + stats.uptime.seconds; }
 
 		document.getElementById("cmtsUptime").innerHTML = uptime;
-		document.getElementById("cmtsCpuUsage").innerHTML = data.cpuUsage;
-		document.getElementById("cmtsTemperatureIn").innerHTML = data.temperatureIn;
-		document.getElementById("cmtsTemperatureOut").innerHTML = data.temperatureOut;
-		document.getElementById("cmtsCountInterfaces").innerHTML = data.countInterfaces;
+		document.getElementById("cmtsCpuUsage").innerHTML = stats.cpuUsage;
+		document.getElementById("cmtsTemperatureIn").innerHTML = stats.temperatureIn;
+		document.getElementById("cmtsTemperatureOut").innerHTML = stats.temperatureOut;
+		document.getElementById("cmtsCountInterfaces").innerHTML = stats.countInterfaces;
 	});
 }, 1000);
-*/
 function toggleCmtsDetails() {
 	if(document.getElementById("cmtsDetails").style.display == "none") {
 		document.getElementById("cmtsDetails").style.display = "table-row";
@@ -182,21 +180,24 @@ function filterList(itemClass) {
 function focusInterface(index) {
 	focusOffCanvas();
 	
-	var cmtsInfoRealTime = setInterval(function(){
-		var data = "index=" + index + "&oid[]=interface.description&oid[]=interface.type&oid[]=interface.mtu&oid[]=interface.speed&oid[]=adminStatus";
-		
-		httpGetAsync("<?php echo $jsCmtsInterfaceInsightUrl; ?>&index="+index, data, function(response) {
+	document.getElementById("offCanvasContent").innerHTML = "Loading ...";
+	
+	var interfaceRealTimeInsight = setInterval(function(){
+		var data = "index=" + index + "&oid=interface";
+		httpPostAsync("<?php echo $jsCmtsCustomReadUrl; ?>", data, function(response) {
 			var data = JSON.parse(response);
-			console.log(data);
-			//var uptime = "";
-			//if(data.uptime.days) { uptime = uptime + data.uptime.days + " days, "; }
-			//if(data.uptime.hours) { uptime = uptime + data.uptime.hours + ":"; }
-			//if(data.uptime.minutes) { uptime = uptime + data.uptime.minutes + ":"; }
-			//if(data.uptime.seconds) { uptime = uptime + data.uptime.seconds; }
+			delete data.upstreamChannel;
+			delete data.uptime;
+	
+			var content = "<div class='info'>";
+			for(var oid in data) {
+				content += "<div class='line'> <font style='text-transform:capitalize'>" + oid +"</font>: "+ data[oid] + "</div>";
+			}
+			content += "</div>";
 
-
+			document.getElementById("offCanvasContent").innerHTML = content;
 		});
-	}, 10000);
+	}, 1000);
 
 }
 
