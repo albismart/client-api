@@ -10,16 +10,16 @@ $generalTree = "1.3.6.1.2.1.1";
 
 return array(
 	"about" => array(
-		"description"		=> "1.3.6.1.2.1.1.1.0",
-		"objectID"			=> "1.3.6.1.2.1.1.2.0",
-		"contact"			=> "1.3.6.1.2.1.1.4.0",
-		"name"				=> "1.3.6.1.2.1.1.5.0",
-		"location"			=> "1.3.6.1.2.1.1.6.0",
-		"services"			=> "1.3.6.1.2.1.1.7.0",
+		"description"			=> "1.3.6.1.2.1.1.1.0",
+		"objectID"				=> "1.3.6.1.2.1.1.2.0",
+		"contact"				=> "1.3.6.1.2.1.1.4.0",
+		"name"					=> "1.3.6.1.2.1.1.5.0",
+		"location"				=> "1.3.6.1.2.1.1.6.0",
+		"services"				=> "1.3.6.1.2.1.1.7.0",
 	),
 	"stats" => array(
-		"uptime"			=> "1.3.6.1.2.1.1.3.0:readableTimeticks",
-		"countInterfaces"	=> "1.3.6.1.2.1.2.1.0",
+		"uptime"				=> "1.3.6.1.2.1.1.3.0:readableTimeticks",
+		"countInterfaces"		=> "1.3.6.1.2.1.2.1.0",
 	),
 	"interface" => array(
 		"index"					=> "1.3.6.1.2.1.2.2.1.1.{index}",
@@ -27,7 +27,7 @@ return array(
 		"type"					=> "1.3.6.1.2.1.2.2.1.3.{index}",
 		"mtu"					=> "1.3.6.1.2.1.2.2.1.4.{index}",
 		"speed"					=> "1.3.6.1.2.1.2.2.1.5.{index}:formatBytes",
-		"highSpeed"				=> "1.3.6.1.2.1.31.1.1.1.15.{index}:formatMegs",
+		"highSpeed"				=> "1.3.6.1.2.1.31.1.1.1.15.{index}:formatMegaBytes",
 		"physicalAddress"		=> "1.3.6.1.2.1.2.2.1.6.{index}",
 		"adminStatus"			=> "1.3.6.1.2.1.2.2.1.7.{index}",
 		"operationStatus"		=> "1.3.6.1.2.1.2.2.1.8.{index}",
@@ -50,11 +50,11 @@ return array(
 	),
 	"cmts" => array(
 		"cableModem" => array(
-			"index" => "1.3.6.1.2.1.10.127.1.3.7.1.2.{index}",
-			"mac" 	=> "1.3.6.1.2.1.10.127.1.3.3.1.2.{index}",
-			"ip" 	=> "1.3.6.1.2.1.10.127.1.3.3.1.3.{index}",
-			"status" => "1.3.6.1.2.1.10.127.1.3.3.1.9.{index}",
-			"uptime" => "1.3.6.1.2.1.10.127.1.3.3.1.22.{index}:readableTimeticks",
+			"index" 			=> "1.3.6.1.2.1.10.127.1.3.7.1.2.{index}",
+			"mac" 				=> "1.3.6.1.2.1.10.127.1.3.3.1.2.{index}",
+			"ip" 				=> "1.3.6.1.2.1.10.127.1.3.3.1.3.{index}",
+			"status" 			=> "1.3.6.1.2.1.10.127.1.3.3.1.9.{index}",
+			"uptime" 			=> "1.3.6.1.2.1.10.127.1.3.3.1.22.{index}:readableTimeticks",
 		)
 	),
 	"docsis" => array(

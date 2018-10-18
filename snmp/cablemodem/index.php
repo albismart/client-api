@@ -4,40 +4,32 @@ $basePath = realpath(dirname(__FILE__));
 $basePath = strstr($basePath, "client-api/", true) . "client-api";
 
 include_once $basePath . "/bootstrap.php";
+include_once snmp_path("/driver.php");
+validateApiRequest();
 
-class Cablemodem extends SNMP_Driver {
+Class CableModem extends SNMP_Driver {
+	public function __construct() {
+		parent::__construct();
+		$cmtsMIB = include_once snmp_path("/cmts/vendors/{$this->vendor}.php");
+		$this->mibs = array_merge_recursive_ex($this->mibs, $cmtsMIB);
+	}
+
 	/***********************************************
 	*	linuxIP/snmp/cablemodem/info/{mac}
 	*************************************************/
 	public function info() {
-		$ip = (isset($_GET['ip'])) ? $_GET['ip'] : null;
-		if($ip) {
-			$oidStatus = $this->read(array(
-				'name' => $this->mibs['cmtsName'], 
-				'description' => $this->mibs['cmtsDescription'], 
-				'uptime' => $this->mibs['cmtsUptime'], 
-				'cpuUsage' => $this->mibs['cpuUsage'], 
-				'temperatureIn' => $this->mibs['cmtsTemperatureIn'], 
-				'temperatureOut' => $this->mibs['cmtsTemperatureOut']));
-			if($oidStatus) {
-				echo json_encode($oidStatus);
-			} else {
-				echo "Operation failed";
-			}
+		$cmtsInfo = array(
+			"about" => $this->read("about"),
+			"stats" => $this->read("stats"),
+		);
+
+		returnJson($cmtsInfo);
 	}
-	}
-	/***********************************************
-	*	linuxIP/snmp/modem/logs/{mac}
-	*************************************************/
-	public function logs() {
-		$ip = urldecode($_GET['ip']);
-		if($ip) {
-			$result = shell_exec("snmpbulkwalk -v2c -c public -m all -Onvq {$ip} .1.3.6.1.2.1.69.1.5.8.1.7");
-			if(is_array($result)) $result = implode("<br/>", $result);
-			$result = str_replace("\n", "<br/>", $result);
-			echo $result;
-		}
-	}
+
 }
+
+$action = (isset($_GET["action"])) ? $_GET["action"] : "info";
+$cableModemSnmpDriver = new Cmts();
+$cableModemSnmpDriver->$action();
 
 ?>

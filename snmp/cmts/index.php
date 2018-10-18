@@ -1,5 +1,5 @@
 <?php
-error_reporting(0);
+
 $basePath = realpath(dirname(__FILE__));
 $basePath = strstr($basePath, "client-api/", true) . "client-api";
 
@@ -15,7 +15,7 @@ Class Cmts extends SNMP_Driver {
 	}
 
 	/***********************************************
-	*	linuxIP/snmp/cmts/?hostname={hostname}
+	*	serverIP/snmp/cmts/?hostname={hostname}
 	*************************************************/
 	public function info() {
 		$cmtsInfo = array(
@@ -27,7 +27,7 @@ Class Cmts extends SNMP_Driver {
 	}
 	
 	/***********************************************
-	*	linuxIP/snmp/cmts/?hostname={hostname}&action=interfaces
+	*	serverIP/snmp/cmts/?hostname={hostname}&action=interfaces
 	*************************************************/
 	public function interfaces() {
 		$interfaces = array();		
@@ -52,7 +52,7 @@ Class Cmts extends SNMP_Driver {
 	}
 
 	/***********************************************
-	*	linuxIP/snmp/cmts/?hostname={hostname}&action=cablemodems
+	*	serverIP/snmp/cmts/?hostname={hostname}&action=cablemodems
 	*************************************************/
 	public function cablemodems() {
 		$cableModems = array();
@@ -83,7 +83,7 @@ Class Cmts extends SNMP_Driver {
 }
 
 $action = (isset($_GET["action"])) ? $_GET["action"] : "info";
-$cmtsSNMPDriver = new Cmts();
-$cmtsSNMPDriver->$action();
+$cmtsSnmpDriver = new Cmts();
+$cmtsSnmpDriver->$action();
 
 ?>
