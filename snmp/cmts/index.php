@@ -7,7 +7,7 @@ include_once $basePath . "/bootstrap.php";
 include_once snmp_path("/driver.php");
 validateApiRequest();
 
-Class Cmts extends SNMP_Driver {
+Class Cmts_SNMP_Driver extends SNMP_Driver {
 	public function __construct() {
 		parent::__construct();
 		$cmtsMIB = include_once snmp_path("/cmts/vendors/{$this->vendor}.php");
@@ -83,7 +83,7 @@ Class Cmts extends SNMP_Driver {
 }
 
 $action = (isset($_GET["action"])) ? $_GET["action"] : "info";
-$cmtsSnmpDriver = new Cmts();
+$cmtsSnmpDriver = new Cmts_SNMP_Driver();
 $cmtsSnmpDriver->$action();
 
 ?>

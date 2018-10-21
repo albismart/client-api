@@ -138,7 +138,7 @@ $jsCmtsCustomReadUrl.= "snmp/cmts/?hostname=" . $hostname . "&action=customread&
 ?>
 <script>
 var cmtsInfoRealTime = setInterval(function(){
-	httpPostAsync("<?php echo $jsCmtsCustomReadUrl; ?>", "oid=stats", function(response) {
+	httpGetAsync("<?php echo $jsCmtsCustomReadUrl; ?>&oid=stats", function(response) {
 		var stats = JSON.parse(response);
 		var uptime = "";
 		if(stats.uptime.days) { uptime = uptime + stats.uptime.days + " days, "; }
@@ -181,8 +181,7 @@ function focusInterface(index) {
 	document.getElementById("offCanvasContent").innerHTML = "Loading ...";
 	
 	var interfaceRealTimeInsight = setInterval(function(){
-		var data = "index=" + index + "&oid=interface";
-		httpPostAsync("<?php echo $jsCmtsCustomReadUrl; ?>", data, function(response) {
+		httpGetAsync("<?php echo $jsCmtsCustomReadUrl; ?>&oid=interface&index="+index, function(response) {
 			var data = JSON.parse(response);
 			delete data.upstreamChannel;
 			delete data.uptime;

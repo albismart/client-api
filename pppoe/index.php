@@ -1,5 +1,30 @@
 <?php
 
+$basePath = realpath(dirname(__FILE__));
+$basePath = strstr($basePath, "client-api/", true) . "client-api";
+
+include_once $basePath . "/bootstrap.php";
+include_once pppoe_path("/mysql.php");
+validateApiRequest();
+
+Class PPPoE_MySQL_Driver extends MySQL_Driver {
+	
+	public function online() {
+		$username = (isset($_GET['username'])) ? $_GET['username'] : "";
+		$onlineStatus = $this->db->get("radacct")->select("username")->where("acctstoptime", "IS NULL", "")->where("username", $username)->first();
+		var_dump($onlineStatus);
+	}
+
+}
+
+$action = (isset($_GET["action"])) ? $_GET["action"] : "info";
+$pppoeMySQLDriver = new PPPoE_MySQL_Driver();
+$pppoeMySQLDriver->$action();
+
+//$action = (isset($_GET["action"])) ? $_GET["action"] : "info";
+//$pppoeDriver = new PPPoE();
+//$pppoeDriver->$action();
+/*
 	case 'do-nas':
 
 		$delete = urldecode($_GET['delete']);
@@ -147,3 +172,7 @@
 			echo json_encode($onlineRecords);
 		}
 	break;
+
+*/
+
+?>

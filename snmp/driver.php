@@ -1,15 +1,16 @@
 <?php
 
-if(!function_exists('base_path')) { exit(); }
+if(!function_exists('base_path')) { header("HTTP/1.1 404 Not found"); exit(); }
 
 Class SNMP_Driver {
 
-	public $hostname, $vendor;
+	public $server, $hostname, $vendor;
 	protected $community, $writeCommunity, $timeout, $retries, $mibs;
 
 	public function __construct() {
 		// Device details based on request
 		$this->hostname = (isset($_GET["hostname"])) ? $_GET["hostname"] : null;
+		$this->server = (isset($_GET["server"])) ? $_GET["server"] : null;
 		$this->vendor = (isset($_GET["vendor"])) ? $_GET["vendor"] : "cisco";
 
 		// Set defaults by config
@@ -25,7 +26,7 @@ Class SNMP_Driver {
 	}
 
 	public function customread() {
-		if(!isset($_GET['oid'])) { returnJson(); }
+		if(!isset($_GET['oid'])) { returnJson(null); }
 
 		$index 		= (isset($_GET['index']))	? $_GET['index']  : "";
 		$readMethod = (isset($_GET['method']))	? $_GET['method'] : SNMP_VALUE_PLAIN;
