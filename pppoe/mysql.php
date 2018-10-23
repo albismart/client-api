@@ -16,29 +16,25 @@ Class MySQL_Driver {
 	}
 
 	public function create($table) {
-		$this->table = $table;
+		$this->table($table);
 		$this->operation("INSERT");
 		return $this;
 	}
 
-	public function get($table, $id = null) {
-		$this->table = $table;
-		$this->operation();
-		if($id) {
-			$this->where("id", $id); 
-			return $this->query();
-		}
-		return $this;
+	public function get($table, $id = null, $column = "id") {
+		$this->table($table);
+		$this->operation("SELECT");
+		return ($id==null) ? $this : $this->where($column, $id)->first($column);
 	}
 
 	public function update($table) {
-		$this->table = $table;
+		$this->table($table);
 		$this->operation("UPDATE");
 		return $this;
 	}
 
 	public function remove($table) {
-		$this->table = $table;
+		$this->table($table);
 		$this->operation("DELETE");
 		return $this;
 	}
@@ -48,8 +44,8 @@ Class MySQL_Driver {
 		if($operation=="INSERT") {
 			$columns = array_keys($values);
 			if(is_string($columns[0])) { $this->columns($columns); }
-			$values = implode(",", $values);
-			$this->operation .= " VALUES({$values}) ";
+			$values = implode("','", $values);
+			$this->operation .= " VALUES('{$values}') ";
 		}
 		if($operation=="UPDATE") {
 			$this->operation .= " SET ";
@@ -62,13 +58,11 @@ Class MySQL_Driver {
 		return $this;
 	}
 
+	/* Alias and columns method */
+	public function select($columns = "*") {  return $this->columns($columns); }
 	public function columns($columns = "*") {
 		$this->columns = (is_array($columns)) ? implode(",", $columns) : $columns;
-		return $this;
-	}
-
-	public function select($columns = "*") {
-		$this->columns($columns);
+		$this->operation = str_replace("*", $this->columns, $this->operation);
 		return $this;
 	}
 
@@ -78,22 +72,36 @@ Class MySQL_Driver {
 		$this->condition .= $condition . "{$column} {$operator} '{$value}' ";
 		return $this;
 	}
-	
-	public function first() {
-		if(substr($this->operation, 0, 6)!="SELECT") { return false; }
-		$this->order = " ORDER BY id DESC LIMIT 1";
-		return $this->query();
+
+	public function isNull($column, $isNull = true) {
+		if(substr($this->operation, 0, 6)=="INSERT") { return $this; }
+		$isNull = ($isNull) ? " IS NULL " : " IS NOT NULL ";
+		$condition = ($this->condition) ? " AND " : " WHERE ";
+		$this->condition .= $condition . " {$column} {$isNull} ";
+		return $this;
 	}
 
-	public function latest($limit = 10) {
+	public function first($column = "id", $order = "DESC") {
 		if(substr($this->operation, 0, 6)!="SELECT") { return false; }
-		$this->order = " ORDER BY id DESC LIMIT " . $limit;
-		return $this->query();
+		$this->order($column, $order);
+		$this->limit(1);
+		$result = $this->query();
+		if($result) { $result = $result->fetch(PDO::FETCH_OBJ); }
+		return ($result!=false) ? $result : null;
+	}
+
+	public function latest($limit = 10, $column = "id", $order = "DESC") {
+		if(substr($this->operation, 0, 6)!="SELECT") { return false; }
+		$this->order($column, $order);
+		$this->limit($limit);
+		return $this->all();
 	}
 
 	public function all() {
 		if(substr($this->operation, 0, 6)!="SELECT") { return false; }
-		return $this->query();
+		$result = $this->query();
+		if($result) { $result = $result->fetchAll(PDO::FETCH_OBJ); }
+		return ($result!=false) ? $result : null;
 	}
 
 	public function save() {
@@ -105,21 +113,40 @@ Class MySQL_Driver {
 		return $this->query();
 	}
 
+	public function innerJoin($statement) {
+		$this->operation .= "INNER JOIN " . $statement;
+		return $this;
+	}
+
+	public function order($column = "id", $order = "DESC") {
+		$this->order = " ORDER BY {$column} {$order} ";
+		return $this;
+	}
+
+	public function limit($limit = 1) {
+		$this->order .= " LIMIT {$limit} ";
+		return $this;
+	}
+
+	protected function table($table) {
+		$this->table = $table;
+		$this->columns = "*";
+		$this->condition = "";
+		$this->order = "";
+	}
+
 	protected function operation($operation = "SELECT") {
 		$this->method = ($operation=="SELECT") ? "query" : "exec";
-		if($operation=="SELECT") { $operation .= ($this->columns=="*" ? "*" : "(" . $this->columns .")") . " FROM " . $this->table; }
-		if($operation=="INSERT") { $operation .= " INTO " . $this->table . ($this->columns=="*" ? "" : "(" . $this->columns .")"); }
-		if($operation=="UPDATE") { $operation .= $this->table; }
+		if($operation=="SELECT") { $operation .= " " . ($this->columns=="*" ? "*" : "(" . $this->columns .")") . " FROM " . $this->table; }
+		if($operation=="INSERT") { $operation .= " INTO " . $this->table . " (" . $this->columns .") "; }
+		if($operation=="UPDATE") { $operation .= " " .$this->table; }
 		if($operation=="DELETE") { $operation .= " FROM " . $this->table; }
-		$this->operation = $operation;
+		$this->operation = $operation . " ";
 	}
 
-	protected function query($query) {
-		return $this->db->{$this->method}( $this->operation . $this->condition . $this->order );
-	}
-
-	public function lastID() {
-		return $this->db->lastInsertId();
+	protected function query() {
+		$query = $this->db->{$this->method}( $this->operation . $this->condition . $this->order );
+		return ($query!=false) ? $query : null;
 	}
 
 }

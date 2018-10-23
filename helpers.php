@@ -205,6 +205,31 @@ function mapNetworkInfo($networkInfo, $info) {
 	return trim($result);
 }
 
+
+/*
+requestParam: function to get request param.
+*/
+function requestParam($key, $default = null) {
+	if(isset($_GET[$key])) {
+		return urldecode($_GET[$key]);
+	}
+	if(isset($_POST[$key])) {
+		return $_POST[$key];
+	}
+	return $default;
+}
+
+/*
+decimalMacFromHex: function to get request param.
+*/
+function decimalMacFromHex($hexMac) {
+	$cmMacHexToDec = explode(":", $cableModemMac);
+	foreach($cmMacHexToDec as $key => $value) {
+		$cmMacHexToDec[$key] = hexdec($value);
+	}
+	return implode(".", $cmMacHexToDec);
+}
+
 /******** PATHS ********/
 function base_path($path = null) {
 	$base_path = realpath(dirname(__FILE__));
