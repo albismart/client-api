@@ -2,6 +2,7 @@
 
 $basePath = realpath(dirname(__FILE__));
 require_once $basePath . "/helpers.php";
+date_default_timezone_set("Europe/Berlin");
 
 $config = file_exists(config_path("/config.php")) ? include_once config_path("/config.php") : null;
 // Prep stuff for setup wizard

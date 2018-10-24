@@ -34,7 +34,7 @@ After doing get the files inside your `/var/www/html/` dir or your public apache
 - [ ] DHCPv2/3 Fixes 
 - [ ] DHCP Provisioning Management API
 - [ ] OMSHELL API
-- [ ] PPPoE Provisioning Management API
+- [x] PPPoE Provisioning Management API
 - [x] CMTS - SNMP Read, Write API
 - [x] CableModem - SNMP Read, Write API
 - [ ] OLT - SNMP Read, Write API
@@ -54,7 +54,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Authors
 
-* **Mentor Gashi** - *Initial work* - [mentorgashi](https://github.com/mentorgashi)
+* **Mentor Gashi** - *Maintainer/Developer* - [mentorgashi](https://github.com/mentorgashi)
 * **Arbnor Gashi** - *Bringing in network standards* - [arbnorgashi](https://github.com/arbnorgashi)
 
 See also the list of [contributors](https://github.com/albismart/client-api/contributors) who participated in this project.
