@@ -4,7 +4,7 @@ if(!function_exists('base_path')) { exit(); }
 
 Class MySQL_Driver {
 
-	protected $db, $method, $table, $operation, $columns, $condition, $order;
+	protected $db, $method, $table, $operation, $columns, $condition, $order, $group, $limit;
 
 	public function __construct() {
 		$host = config("database.host");
@@ -81,6 +81,12 @@ Class MySQL_Driver {
 		return $this;
 	}
 
+	public function fetch() {
+		$result = $this->query();
+		if($result) { $result = $result->fetch(PDO::FETCH_OBJ); }
+		return ($result!=false) ? $result : null;
+	}
+
 	public function first($column = "id", $order = "DESC") {
 		if(substr($this->operation, 0, 6)!="SELECT") { return false; }
 		$this->order($column, $order);
@@ -97,7 +103,10 @@ Class MySQL_Driver {
 		return $this->all();
 	}
 
+	/* Alias and columns method */
+	public function fetchAll() { return $this->all(); }
 	public function all() {
+		if(substr($this->operation, 0, 6)!="DELETE") { return $this->query(); }
 		if(substr($this->operation, 0, 6)!="SELECT") { return false; }
 		$result = $this->query();
 		if($result) { $result = $result->fetchAll(PDO::FETCH_OBJ); }
@@ -114,17 +123,22 @@ Class MySQL_Driver {
 	}
 
 	public function innerJoin($statement) {
-		$this->operation .= "INNER JOIN " . $statement;
+		if($statement) { $this->operation .= "INNER JOIN " . $statement; }
 		return $this;
 	}
 
 	public function order($column = "id", $order = "DESC") {
-		$this->order = " ORDER BY {$column} {$order} ";
+		if($column!="") { $this->order = " ORDER BY {$column} {$order} "; }
+		return $this;
+	}
+
+	public function group($column = "id") {
+		if($column!="") { $this->group = " GROUP BY {$column} "; }
 		return $this;
 	}
 
 	public function limit($limit = 1) {
-		$this->order .= " LIMIT {$limit} ";
+		if($limit!=0) { $this->limit = " LIMIT {$limit} "; }
 		return $this;
 	}
 
@@ -133,6 +147,8 @@ Class MySQL_Driver {
 		$this->columns = "*";
 		$this->condition = "";
 		$this->order = "";
+		$this->group = "";
+		$this->limit = "";
 	}
 
 	protected function operation($operation = "SELECT") {
@@ -145,7 +161,7 @@ Class MySQL_Driver {
 	}
 
 	protected function query() {
-		$query = $this->db->{$this->method}( $this->operation . $this->condition . $this->order );
+		$query = $this->db->{$this->method}( $this->operation . $this->condition . $this->order . $this->group . $this->limit );
 		return ($query!=false) ? $query : null;
 	}
 
