@@ -281,7 +281,7 @@ return array(
 		"releaseUrl" => "https://api.github.com/repos/albismart/client-api/releases/latest"
 	),
 	"database" => array(
-		"host" => "'.$post['dbhost'].'",
+		"hostname" => "'.$post['dbhost'].'",
 		"port" => "'.$post['dbport'].'",
 		"name" => "'.$post['dbname'].'",
 		"username" => "'.$post['dbusername'].'",

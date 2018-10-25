@@ -31,9 +31,7 @@ After doing get the files inside your `/var/www/html/` dir or your public apache
 ### Our initial todo list (we may extend or eleminate items, depending on the project flow)
 
 - [x] Server info
-- [ ] DHCPv2/3 Fixes 
 - [ ] DHCP Provisioning Management API
-- [ ] OMSHELL API
 - [x] PPPoE Provisioning Management API
 - [x] CMTS - SNMP Read, Write API
 - [x] CableModem - SNMP Read, Write API
