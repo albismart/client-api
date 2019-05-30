@@ -1,4 +1,4 @@
-![alt text](http://albismart.com/client-api.png "Logo")
+![alt text](http://edge.albismart.com/logo/logo-name.svg "Logo")
 
 [![Client API - Intro](http://albismart.com/clientapi-preview.gif)](https://www.youtube.com/watch?v=RVfij_-W1y0)
 
