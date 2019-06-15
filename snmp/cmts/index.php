@@ -25,7 +25,21 @@ Class Cmts_SNMP_Driver extends SNMP_Driver {
 
 		returnJson($cmtsInfo);
 	}
-	
+
+	/***********************************************
+	*	serverIP/snmp/cmts/?hostname={hostname}&action=about
+	*************************************************/
+	public function about() {
+		returnJson($this->read("about"));
+	}
+
+	/***********************************************
+	*	serverIP/snmp/cmts/?hostname={hostname}&action=stats
+	*************************************************/
+	public function stats() {
+		returnJson($this->read("stats"));
+	}
+
 	/***********************************************
 	*	serverIP/snmp/cmts/?hostname={hostname}&action=interfaces
 	*************************************************/
