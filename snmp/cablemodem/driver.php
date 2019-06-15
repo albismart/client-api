@@ -26,11 +26,11 @@ Class CableModem_SNMP_Driver extends SNMP_Driver {
 			foreach($cmtses as $cmts_hostname) {
 				if(isset($modemData->ptr)) { continue; }
 				$cmtsSnmpDriver = new Cmts_SNMP_Driver($cmts_hostname);
-				$foundCableModemPtr = $cmtsSnmpDriver->read('cmts.cableModem.index', $modemData->dmac);
+				$foundCableModemPtr = $cmtsSnmpDriver->read('cmts.cableModem.identity.index', $modemData->dmac);
 				if($foundCableModemPtr) {
 					$modemData->ptr = $foundCableModemPtr;
 					$modemData->cmts = $cmts_hostname;
-					$modemData->ip = $cmtsSnmpDriver->read('cmts.cableModem.ip', $modemData->ptr);
+					$modemData->ip = $cmtsSnmpDriver->read('cmts.cableModem.identity.ip', $modemData->ptr);
 				}
 			}
 		}
@@ -90,28 +90,127 @@ Class CableModem_SNMP_Driver extends SNMP_Driver {
 	public function insight() {
 
 		$insightData = new \stdClass;
+		$start = microtime();
 
-		if(isset($_GET['cmts'])) {
-			$cmtses = explode(",", $_GET['cmts']);
-			foreach($cmtses as $cmts_hostname) {
-				if(isset($modemData->ptr)) { continue; }
-				$cmtsSnmpDriver = new Cmts_SNMP_Driver($cmts_hostname);
-				$foundCableModemPtr = $cmtsSnmpDriver->read('cmts.cableModem.index', $modemData->dmac);
-				if($foundCableModemPtr) {
-					$modemData->ptr = $foundCableModemPtr;
-					$modemData->cmts = $cmts_hostname;
-					$modemData->ip = $cmtsSnmpDriver->read('cmts.cableModem.ip', $modemData->ptr);
+		if($this->identity->cmts) {
+			$cmtsSnmpDriver = new Cmts_SNMP_Driver($this->identity->cmts);
+			$insightData->state = new \stdClass;
+			$insightData->state->status = new \stdClass;
+			$insightData->state->status->source = $this->identity->cmts;
+			$insightData->state->status->value = $cmtsSnmpDriver->read('cmts.cableModem.status', $this->identity->ptr);
+
+			$insightData->state->operational = new \stdClass;
+			$insightData->state->operational->source = $this->hostname;
+			$insightData->state->operational->value = $this->read('docsis.cableModem.status');
+			$insightData->state->operational->config = $this->read('docsis.cableModem.configFilename');
+
+
+			$downstreamChannelIndex = $cmtsSnmpDriver->read('cmts.cableModem.downstreamChannel', $this->identity->ptr);
+
+			$insightData->primaryDownstream = new \stdClass;
+			$insightData->primaryDownstream->source = $this->identity->cmts;
+			$insightData->primaryDownstream->index = $downstreamChannelIndex;
+			$insightData->primaryDownstream->name = $cmtsSnmpDriver->read('interface.description', $downstreamChannelIndex);
+
+			$preSnrValue = $cmtsSnmpDriver->read('docsis.cmts.cableModem.upstreamChannelsD3[R]', $this->identity->ptr);
+
+			if($preSnrValue) {
+				$snrValues = array();
+
+				foreach($preSnrValue as $interface => $snrValue) {
+					$interfaceIndex = explode(".", $interface);
+					$interfaceIndex = array_pop($interfaceIndex);
+					$interfaceName = $cmtsSnmpDriver->read('interface.description', $interfaceIndex);
+
+					$snrValueObject = new \stdClass;
+					$snrValueObject->source = $this->identity->cmts;
+					$snrValueObject->index = $interfaceIndex;
+					$snrValueObject->name = $interfaceName;
+					$snrValueObject->snr = $snrValue;
+
+					$snrValues[] = $snrValueObject;
+				}
+
+				$insightData->upstreamChannels = $snrValues;
+			} else {
+				
+				//Docsis 2.0 Fallback
+
+				$preSnrValue = $cmtsSnmpDriver->read('interface.upstreamChannels[R]', $this->identity->ptr);
+				$snrValues = array();
+				
+				foreach($preSnrValue as $interface => $snrValue) {
+					$interfaceIndex = explode(".", $interface);
+					$interfaceIndex = array_pop($interfaceIndex);
+					$interfaceName = $cmtsSnmpDriver->read('interface.description', $interfaceIndex);
+
+					$snrValueObject = new \stdClass;
+					$snrValueObject->source = $this->identity->cmts;
+					$snrValueObject->index = $interfaceIndex;
+					$snrValueObject->name = $interfaceName;
+					$snrValueObject->snr = $snrValue;
+
+					$snrValues[] = $snrValueObject;
+				}
+
+				$insightData->upstreamChannels = $snrValues[0];
+
+			}
+
+			$preDSValue = $this->read("docsis.interface.downstreamChannel.frequency[R]");
+			if($preDSValue) {
+				$freqValues = array();
+				
+				foreach($preDSValue as $interface => $frequency) {
+					$interfaceIndex = explode(".", $interface);
+					$interfaceIndex = array_pop($interfaceIndex);
+					$interfaceName = $this->read('interface.description', $interfaceIndex);
+					$interfacePower = $this->read('docsis.interface.downstreamChannel.power', $interfaceIndex);
+					$interfaceSnr = $this->read('docsis.interface.snr', $interfaceIndex);
+					$interfaceMr = $this->read('docsis.interface.mr', $interfaceIndex);
+
+					$freqValueObject = new \stdClass;
+					$freqValueObject->source = $this->hostname;
+					$freqValueObject->index = $interfaceIndex;
+					$freqValueObject->name = $interfaceName;
+					$freqValueObject->frequency = $frequency;
+					$freqValueObject->power = $interfacePower;
+					$freqValueObject->snr = $interfaceSnr;
+					$freqValueObject->mr = $interfaceMr;
+
+					$freqValues[] = $freqValueObject;
+				}
+	
+				$insightData->downstreamChannels = $freqValues;
+			}
+
+			$preUsFreqValue = $this->read("docsis.interface.upstreamChannel.frequency[R]");
+			if($preUsFreqValue) {
+				$i = 0;
+				foreach($preUsFreqValue as $interface => $frequency) {
+					$interfaceIndex = explode(".", $interface);
+					$interfaceIndex = array_pop($interfaceIndex);
+					$insightData->upstreamChannels[$i]->frequency = $frequency;
+					
+					if($insightData->state->operational->value>1) {
+						$insightData->upstreamChannels[$i]->power = $this->read("docsis.interface.upstreamChannel.powerD3", $interfaceIndex);
+					} else {
+						$insightData->upstreamChannels[$i]->power = $this->read("docsis.interface.upstreamChannel.power", $interfaceIndex);
+					}
+					
+					$i++;
 				}
 			}
-		}
-		
-		$modemInfo = array(
-			"identity" => $this->identity,
-			"about" => $this->read("about"),
-			"stats" => $this->read("stats"),
-		);
 
-		returnJson($modemInfo);
+			// $preCPEHosts = $this->read("docsis.cableModem.cpehosts[R]",null,SNMP_VALUE_LIBRARY);
+			// var_dump($preCPEHosts);
+
+			$end = microtime();
+
+			$insightData->evaluationTime = ((float)$end-(float)$start) / 60 / 60;
+		}
+
+		returnJson($insightData);
 	}
 
 }
