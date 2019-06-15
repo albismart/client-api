@@ -48,12 +48,15 @@ return array(
 	),
 	"cmts" => array(
 		"cableModem" => array(
-			"index" 			=> "1.3.6.1.2.1.10.127.1.3.7.1.2.{index}",
-			"mac" 				=> "1.3.6.1.2.1.10.127.1.3.3.1.2.{index}",
-			"ip" 				=> "1.3.6.1.2.1.10.127.1.3.3.1.3.{index}",
+			"identity" => array(
+				"index" 			=> "1.3.6.1.2.1.10.127.1.3.7.1.2.{index}",
+				"mac" 				=> "1.3.6.1.2.1.10.127.1.3.3.1.2.{index}",
+				"ip" 				=> "1.3.6.1.2.1.10.127.1.3.3.1.3.{index}",
+			),
 			"status" 			=> "1.3.6.1.2.1.10.127.1.3.3.1.9.{index}",
 			"uptime" 			=> "1.3.6.1.2.1.10.127.1.3.3.1.22.{index}:readableTimeticks",
-		)
+			"downstreamChannel" => "1.3.6.1.2.1.10.127.1.3.3.1.4.{index}",
+ 		)
 	),
 	"docsis" => array(
 		"version"				=> "1.3.6.1.2.1.10.127.1.1.5",
@@ -82,11 +85,11 @@ return array(
 			"description"		=> "1.3.6.1.2.1.69.1.5.8.1.7",
 		),
 		"interface" => array(
-			"totalCodeWords" 			=> "1.3.6.1.2.1.10.127.1.1.4.1.8.{index}:{dependency}=129", // docsCableUpstream(129)
-			"correctedCodeWords" 		=> "1.3.6.1.2.1.10.127.1.1.4.1.9.{index}:{dependency}=129", // docsCableUpstream(129)
-			"uncorrectedCodeWorks" 		=> "1.3.6.1.2.1.10.127.1.1.4.1.10.{index}:{dependency}=129", // docsCableUpstream(129)
-			"snr" 						=> "1.3.6.1.2.1.10.127.1.1.4.1.5.{index}:{dependency}=129", // docsCableUpstream(129)
-			"mr" 						=> "1.3.6.1.2.1.10.127.1.1.4.1.6.{index}:{dependency}=129", // docsCableUpstream(129)
+			"totalCodeWords" 			=> "1.3.6.1.2.1.10.127.1.1.4.1.8.{index}", // docsCableUpstream(129) :{dependency}=129
+			"correctedCodeWords" 		=> "1.3.6.1.2.1.10.127.1.1.4.1.9.{index}", // docsCableUpstream(129)
+			"uncorrectedCodeWorks" 		=> "1.3.6.1.2.1.10.127.1.1.4.1.10.{index}", // docsCableUpstream(129) :{dependency}=129
+			"snr" 						=> "1.3.6.1.2.1.10.127.1.1.4.1.5.{index}", // docsCableUpstream(129) :{dependency}=129
+			"mr" 						=> "1.3.6.1.2.1.10.127.1.1.4.1.6.{index}", // docsCableUpstream(129) :{dependency}=129
 			//"sigQUnerroreds" 			=> "1.3.6.1.2.1.10.127.1.1.4.1.2.{index}:interface.type=129" // docsCableUpstream(129)
 			"upstreamChannel" => array(
 				"index"					=> "1.3.6.1.2.1.10.127.1.1.2.1.1",
@@ -102,6 +105,8 @@ return array(
 				"type"					=> "1.3.6.1.2.1.10.127.1.1.2.1.15",
 				"status"				=> "1.3.6.1.2.1.10.127.1.1.2.1.18",
 				"preEqEnable"			=> "1.3.6.1.2.1.10.127.1.1.2.1.19",
+				"powerD3"				=> "1.3.6.1.4.1.4491.2.1.20.1.2.1.1.{index}",
+				"power"					=> "1.3.6.1.2.1.10.127.1.2.2.1.3.2.{index}",
 			),
 			"downstreamChannel" 		=> array(
 				"index"					=> "1.3.6.1.2.1.10.127.1.1.1.1.1",
@@ -139,7 +144,16 @@ return array(
 				"channelType"					=> "1.3.6.1.2.1.10.127.1.3.5.1.21",
 				"storageType"					=> "1.3.6.1.2.1.10.127.1.3.5.1.22",
 			),
+			"cableModem" => array(
+				"upstreamChannelsD3" 			=> "1.3.6.1.4.1.4491.2.1.20.1.4.1.4.{index}",
+				"upstreamChannels"				=> "1.3.6.1.2.1.10.127.1.3.3.1.5.{index}",
+			)
 		),
+		"cableModem" => array(
+			"status" 					=> "1.3.6.1.4.1.4491.2.1.20.1.1.1.1.2.{index}",
+			"configFilename"			=> "1.3.6.1.2.1.69.1.4.5.0.{index}",
+			"cpehosts"					=> "1.3.6.1.2.1.17.4.3.1.3",
+		)
 	),
 );
 
