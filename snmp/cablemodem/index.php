@@ -10,7 +10,7 @@ validateApiRequest();
 Class CableModem_SNMP_Driver extends SNMP_Driver {
 	public function __construct() {
 		parent::__construct();
-		$cmtsMIB = include_once snmp_path("/cmts/vendors/{$this->vendor}.php");
+		$cmtsMIB = include_once snmp_path("/cablemodem/vendors/{$this->vendor}.php");
 		$this->mibs = array_merge_recursive_ex($this->mibs, $cmtsMIB);
 	}
 
