@@ -171,9 +171,10 @@ function array_merge_recursive_ex(array & $array1, array & $array2) {
 }
 
 /*
-validateApiRequest: simply check if api_key param is set and validate if it matches with current config.
+validateApiRequest: simply check if api_key is set and request param matches with current config.
 */
 function validateApiRequest() {
+	if( !config("api.key") || config("api.key") == "" ) return;
 	if( !isset($_GET['api_key']) && !isset($_POST['api_key']) ) {
 		header("HTTP/1.1 401 Unauthorized request");
 		exit();
