@@ -114,6 +114,10 @@ Class SNMP_Driver {
 			$oidIndex = str_replace("[]", "", $oidIndex);
 			$suffix = "[]";
 		}
+		if(strpos($oidIndex, '[R]') !== false) {
+			$oidIndex = str_replace("[R]", "", $oidIndex);
+			$suffix = "[R]";
+		}
 		$indexes = strpos($oidIndex, '.') !== false ? explode('.', $oidIndex) : 
 				  (strpos($oidIndex, '/') !== false ? explode('/', $oidIndex) : null);
 		if($indexes) {
@@ -165,6 +169,10 @@ Class SNMP_Driver {
 		if(strpos($oid, '[]') !== false) { 
 			$snmpMethod = "snmpwalk";
 			$oid = str_replace("[]","", $oid);
+		}
+		if(strpos($oid, '[R]') !== false) {
+			$snmpMethod = "snmprealwalk";
+			$oid = str_replace("[R]","", $oid);
 		}
 
 		$parsed = new stdClass;
