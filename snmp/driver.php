@@ -4,21 +4,45 @@ if(!function_exists('base_path')) { header("HTTP/1.1 404 Not found"); exit(); }
 
 Class SNMP_Driver {
 
-	public $server, $hostname, $vendor;
+	public $hostname, $vendor;
 	protected $community, $writeCommunity, $timeout, $retries, $mibs;
 
-	public function __construct() {
+	public function __construct($hostname = null, $community = null, $writeCommunity = null) {
 		// Device details based on request
-		$this->hostname = (isset($_GET["hostname"])) ? $_GET["hostname"] : null;
-		$this->server = (isset($_GET["server"])) ? $_GET["server"] : null;
-		$this->vendor = (isset($_GET["vendor"])) ? $_GET["vendor"] : "cisco";
+		if($hostname!=null) {
+			$this->hostname = $hostname;
+		} else {
+			$this->hostname = (isset($_GET["hostname"])) ? $_GET["hostname"] : null;	
+		}
 
 		// Set defaults by config
-		$this->community = config("snmp.community");
-		$this->writeCommunity = config("snmp.wcommunity") ? config("snmp.wcommunity") : $this->community;
+		$this->community = ($community) ? $community : config("snmp.community");
+		$this->writeCommunity = ($writeCommunity) ? $writeCommunity : config("snmp.wcommunity", $this->community);
 		$this->timeout = config("snmp.timeout", 100000);
 		$this->retries = config("snmp.retries", 2);
-		$this->mibs = include_once snmp_path("/albismart-mib.php");
+		if(!is_array($this->mibs)) { $this->mibs = include snmp_path("/albismart-mib.php"); }
+
+		if($this->hostname) {
+			$sysDescription = $this->read("about.description");		
+			if(!$sysDescription) {
+				die("Host ({$this->hostname}) is offline or SNMP doesn't appear to be running.");
+			}
+
+			$this->vendor = 'cisco';
+			$lowerCaseSysDescription = strtolower($sysDescription);
+
+			if (strpos($lowerCaseSysDescription, 'arris') !== false) {
+				$this->vendor = 'arris';
+				if(strpos($lowerCaseSysDescription, 'model: bsr') !== false) {
+					$this->vendor = 'motorola';
+				}
+			}
+		}
+	}
+
+	protected function setupCommunity($read, $write) {
+		$this->community($read);
+		$this->writeCommunity($write);
 	}
 
 	public function mibs() {
