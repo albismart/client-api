@@ -4,7 +4,7 @@ $basePath = realpath(dirname(__FILE__));
 require_once $basePath . "/helpers.php";
 date_default_timezone_set("Europe/Berlin");
 
-$config = file_exists(config_path("/config.php")) ? include_once config_path("/config.php") : null;
+$config = file_exists(data_path("/config.php")) ? include_once data_path("/config.php") : null;
 // Prep stuff for setup wizard
 if(!$config) {
 	$latestVersionObject = apiLatestVersionObject();
@@ -19,7 +19,7 @@ if(!$config) {
 		'freeradius' => shell_exec('freeradius -v'),
 		'dhcp' => shell_exec('dhcpd -f'),
 		'omshell' => shell_exec('omshell'),
-		'fileperms' => ltrim(substr(sprintf('%o', fileperms(config_path())), -4),0),
+		'fileperms' => ltrim(substr(sprintf('%o', fileperms(data_path())), -4),0),
 	);
 }
 

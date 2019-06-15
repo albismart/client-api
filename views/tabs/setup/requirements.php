@@ -22,7 +22,7 @@
 			<ul>
 				<li>
 					<a href="http://php.net/manual/en/function.fileperms.php" target="_blank">
-						Config dir chmod: 
+						Data dir chmod: 
 						<font v-html="reqs.fileperms"></font>
 						<font v-if="reqs.fileperms!=777">! Please change it to: 777 </font>
 					</a>

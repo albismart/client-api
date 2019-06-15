@@ -6,8 +6,8 @@ if(!$config) {
 	if(!isset($_POST['create-config'])) {
 		include_once views_path("/setup.php");
 	} else {
-		file_put_contents(config_path("/config.php"), configFileContent($_POST));
-		file_put_contents(config_path("/dhcp.conf"), $_POST['dhcpconf']);
+		file_put_contents(data_path("/config.php"), configFileContent($_POST));
+		file_put_contents(data_path("/dhcp.conf"), $_POST['dhcpconf']);
 		$apiRootURL = "http://" . $_SERVER['HTTP_HOST'] . str_replace("/index.php", "", $_SERVER['REQUEST_URI']);
 		header("Location: " . $apiRootURL);
 	}

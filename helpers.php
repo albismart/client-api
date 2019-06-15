@@ -262,9 +262,9 @@ function views_path($path = null) {
 	return ($path) ? $views_path . $path : $views_path;
 }
 
-function config_path($path = null) {
-	$config_path = base_path('/config');
-	return ($path) ? $config_path . $path : $config_path;
+function data_path($path = null) {
+	$data_path = base_path('/data');
+	return ($path) ? $data_path . $path : $data_path;
 }
 
 /******** Config file formatting helper ********/
