@@ -90,7 +90,8 @@ Class CableModem_SNMP_Driver extends SNMP_Driver {
 	public function insight() {
 
 		$insightData = new \stdClass;
-		$start = microtime();
+
+		$insightData->identity = $this->identity;
 
 		if($this->identity->cmts) {
 			$cmtsSnmpDriver = new Cmts_SNMP_Driver($this->identity->cmts);
@@ -202,12 +203,8 @@ Class CableModem_SNMP_Driver extends SNMP_Driver {
 				}
 			}
 
-			// $preCPEHosts = $this->read("docsis.cableModem.cpehosts[R]",null,SNMP_VALUE_LIBRARY);
-			// var_dump($preCPEHosts);
-
-			$end = microtime();
-
-			$insightData->evaluationTime = ((float)$end-(float)$start) / 60 / 60;
+			exec("ping -c 1 " . $this->identity->ip . " | head -n 2 | tail -n 1 | awk '{print $7}'", $ping_time);
+			$insightData->ping = ltrim(strstr($ping_time[0], "="),"=") . " MS";
 		}
 
 		returnJson($insightData);
