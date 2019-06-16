@@ -3,40 +3,48 @@
 if(!function_exists('base_path')) { header("HTTP/1.1 404 Not found"); exit(); }
 
 Class CableModem_SNMP_Driver extends SNMP_Driver {
-	protected $identity;
+	public $identity;
 
-	public function __construct($hostname = null, $community = "public", $writeCommunity = "private") {
-		$modemAddress = (isset($_GET['mac'])) ? strtolower($_GET['mac']) : null;
-		if(!$modemAddress) returnJson(null);
+	public function __construct($hostname = null, $community = "public", $writeCommunity = "private", $identity = null) {
+		if($identity!=null) {
+			$this->identity = $identity;
+			$this->hostname = $this->identity->ip;
+		} else {
+			$modemAddress = (isset($_GET['mac'])) ? strtolower($_GET['mac']) : $macAddress;		
+			if(!$modemAddress) returnJson(null);
 
-		$sanitizedModemAddress = strtolower($modemAddress);
-		$sanitizedModemAddress = str_replace(":","", $sanitizedModemAddress);
-		
-		$modemData = new \stdClass;
-		$modemData->mac = $modemAddress;
+			$sanitizedModemAddress = strtolower($modemAddress);
+			$sanitizedModemAddress = str_replace(":","", $sanitizedModemAddress);
 
-		$cmMacHexToDec = explode(":", $modemAddress);
-		foreach($cmMacHexToDec as $key => $value) {
-			$cmMacHexToDec[$key] = hexdec($value);
-		}
-		$modemData->dmac = implode(".", $cmMacHexToDec);
+			$modemData = new \stdClass;
+			$modemData->mac = $modemAddress;
 
-		if(isset($_GET['cmts'])) {
-			$cmtses = explode(",", $_GET['cmts']);
-			foreach($cmtses as $cmts_hostname) {
-				if(isset($modemData->ptr)) { continue; }
-				$cmtsSnmpDriver = new Cmts_SNMP_Driver($cmts_hostname);
-				$foundCableModemPtr = $cmtsSnmpDriver->read('cmts.cableModem.identity.index', $modemData->dmac);
-				if($foundCableModemPtr) {
-					$modemData->ptr = $foundCableModemPtr;
-					$modemData->cmts = $cmts_hostname;
-					$modemData->ip = $cmtsSnmpDriver->read('cmts.cableModem.identity.ip', $modemData->ptr);
+			$cmMacHexToDec = explode(":", $modemAddress);
+			foreach($cmMacHexToDec as $key => $value) {
+				$cmMacHexToDec[$key] = hexdec($value);
+			}
+			$modemData->dmac = implode(".", $cmMacHexToDec);
+
+			if(isset($_GET['cmts'])) {
+				$cmtses = explode(",", $_GET['cmts']);
+				foreach($cmtses as $cmts_hostname) {
+					if(isset($modemData->ptr)) { continue; }
+					$cmtsSnmpDriver = new Cmts_SNMP_Driver($cmts_hostname);
+					$foundCableModemPtr = $cmtsSnmpDriver->read('cmts.cableModem.identity.index', $modemData->dmac);
+					if($foundCableModemPtr) {
+						$modemData->ptr = $foundCableModemPtr;
+						$modemData->cmts = $cmts_hostname;
+						$modemData->ip = $cmtsSnmpDriver->read('cmts.cableModem.identity.ip', $modemData->ptr);
+					}
 				}
 			}
-		}
 
-		$this->hostname = $modemData->ip;
-		$this->identity = $modemData;
+			if($hostname == null) {
+				$this->hostname = $modemData->ip;
+			}
+
+			$this->identity = $modemData;
+		}
 
 		parent::__construct($this->hostname, $community, $writeCommunity);
 
