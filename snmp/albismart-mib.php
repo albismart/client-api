@@ -47,6 +47,7 @@ return array(
 		"outErrors"				=> "1.3.6.1.2.1.2.2.1.20.{index}",
 	),
 	"cmts" => array(
+		"onlineCMList"			=> "1.3.6.1.2.1.10.127.1.3.3.1.3",
 		"cableModem" => array(
 			"identity" => array(
 				"index" 			=> "1.3.6.1.2.1.10.127.1.3.7.1.2.{index}",
@@ -59,6 +60,8 @@ return array(
  		)
 	),
 	"docsis" => array(
+		"serialNumber"			=> "1.3.6.1.2.1.69.1.1.4.0",
+		"eventsLog"				=> "1.3.6.1.2.1.69.1.5.8.1.7",
 		"version"				=> "1.3.6.1.2.1.10.127.1.1.5",
 		"dateTime"				=> "1.3.6.1.2.1.69.1.1.2",
 		"software" => array(
@@ -153,6 +156,7 @@ return array(
 			"status" 					=> "1.3.6.1.4.1.4491.2.1.20.1.1.1.1.2.{index}",
 			"configFilename"			=> "1.3.6.1.2.1.69.1.4.5.0.{index}",
 			"cpehosts"					=> "1.3.6.1.2.1.17.4.3.1.3",
+			"macAddress"				=> "1.3.6.1.2.1.2.2.1.6.2"
 		)
 	),
 );
