@@ -25,7 +25,7 @@ Class SNMP_Driver {
 		if($this->hostname) {
 			$sysDescription = $this->read("about.description");		
 			if(!$sysDescription) {
-				die("Host ({$this->hostname}) is offline or SNMP doesn't appear to be running.");
+				//"Host ({$this->hostname}) is offline or SNMP doesn't appear to be running.";
 			}
 
 			$this->vendor = 'cisco';
