@@ -1,4 +1,4 @@
-![alt text](http://cdn.albismart.cloud/logo/logo-name.svg "Logo")
+![alt text](http://cdn.albismart.cloud/logo.svg "Logo")
 
 [![Client API - Intro](Watch youtube guide)](https://www.youtube.com/watch?v=RVfij_-W1y0)
 
