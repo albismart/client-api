@@ -1,4 +1,4 @@
-![alt text](http://edge.albismart.com/logo/logo-name.svg "Logo")
+![alt text](http://cdn.albismart.cloud/logo/logo-name.svg "Logo")
 
 [![Client API - Intro](Watch youtube guide)](https://www.youtube.com/watch?v=RVfij_-W1y0)
 
@@ -52,8 +52,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Authors
 
-* **Mentor Gashi** - *Maintainer/Developer* - [mentorgashi](https://github.com/mentorgashi)
-* **Arbnor Gashi** - *Bringing in network standards* - [arbnorgashi](https://github.com/arbnorgashi)
+* **Albismart Team** - [albismart](https://github.com/orgs/albismart/teams/engineers)
 
 See also the list of [contributors](https://github.com/albismart/client-api/contributors) who participated in this project.
 
