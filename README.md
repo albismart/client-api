@@ -1,17 +1,14 @@
 ![alt text](http://cdn.albismart.cloud/logo.svg "Logo")
+Albismart snmp-driver is an opensource project, MIT-licensed. It is maintained by the core developers of Albismart company. Open to any contributors willing to give to the Internet Providing community.
 
 [![Client API - Intro](Watch youtube guide)](https://www.youtube.com/watch?v=RVfij_-W1y0)
 
-
-AlbiSmart client-api is an opensource project, MIT-licensed. It is maintained by the core developers of AlbiSmart company. Open to any contributors willing to give their very own to the Internet Provisioning community.
-
 ## Introduction
-The client-api as we call it, is a middleware between the local servers of the ISP companies subscribed to AlbiSmart services. However the API can be used for your internal needs, experiments or integration to systems of your choice.
-It is designed to provide your network infrastructure a modern Rest API with [JSON](http://www.json.org/) results.
+The client-api, is a middleware between the decentralized servers and provisioning solutions.
+It is designed to provide your network infrastructure a modern REST API using [JSON](http://www.json.org/).
 
 ### Prerequisites
-
-In order to get the API running and ready, setup a linux distro with the below servicecs
+In order to get the API running, setup a linux distro with the below services
 
 ```
 1. PHP 5.4> running server with 
