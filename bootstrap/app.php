@@ -25,6 +25,8 @@ $app->withFacades();
 
 $app->configure('influxdb');
 
+$app->configure('snmp');
+
 $app->withEloquent();
 
 /*
