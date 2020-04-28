@@ -4,8 +4,64 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "75f21d568d65a3b110ae6ccdcde4e0fd",
+    "content-hash": "8386255fa578352684f3f3ca143de9f3",
     "packages": [
+        {
+            "name": "albismart/snmp-driver",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/albismart/snmp-driver.git",
+                "reference": "e189e8540e22c4fadb29b6d5945d08180b3462b4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/albismart/snmp-driver/zipball/e189e8540e22c4fadb29b6d5945d08180b3462b4",
+                "reference": "e189e8540e22c4fadb29b6d5945d08180b3462b4",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/config": "~5.8.0|^6.0|^7.0",
+                "illuminate/support": "~5.8.0|^6.0|^7.0",
+                "php": "^7.2.5"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Albismart\\SnmpServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Albismart\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Erblin Bobaj",
+                    "email": "e.bobaj@albismart.com"
+                },
+                {
+                    "name": "Sait Kycyk",
+                    "email": "s.kycyk@albismart.com"
+                }
+            ],
+            "description": "A SNMP driver for Laravel.",
+            "keywords": [
+                "albismart",
+                "driver",
+                "laravel",
+                "snmp",
+                "snmp driver"
+            ],
+            "time": "2020-04-27T15:32:27+00:00"
+        },
         {
             "name": "doctrine/inflector",
             "version": "1.3.1",
@@ -5174,11 +5230,14 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "albismart/snmp-driver": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.2"
+        "php": "^7.2.5"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }

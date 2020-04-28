@@ -5,7 +5,8 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "php": "^7.2",
+        "php": "^7.2.5",
+        "albismart/snmp-driver": "dev-master",
         "laravel/lumen-framework": "^6.0",
         "tray-labs/laravel-influxdb": "^1.0"
     },
